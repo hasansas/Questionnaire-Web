@@ -1,0 +1,251 @@
+{
+  "home": {
+    "hero": {
+      "titleLine1": "Master Your Energy,",
+      "titleLine2": "Transform Your Life",
+      "subtitle": "Get your personalized energy analysis instantly to uncover your natural strengths, ideal career path, business, wealth, and best life opportunities using only your date of birth.",
+      "cta": "Start Free Analysis Now",
+      "trustLine": "No credit card required · Instant personalized results",
+      "imageAlt": "SuperBazi Five Elements Yin Yang"
+    },
+    "why": {
+      "overline": "Why SuperBazi",
+      "title": "Clarity Meets Technology",
+      "subtitle": "Experience the ancient wisdom of BaZi, redefined for the modern age, powered by AI and Expert Knowledge.",
+      "features": {
+        "instant": {
+          "title": "Accurate & Instant Analysis",
+          "desc": "Receive professional-grade BaZi insights instantly — no waiting weeks for traditional consultations."
+        },
+        "expert": {
+          "title": "SuperBazi AI + Bazi Master Expertise",
+          "desc": "Combines cutting-edge technology and advanced algorithms with wisdom from experienced BaZi Masters for precise and relatable results."
+        },
+        "action": {
+          "title": "Personal Insight, Real Action",
+          "desc": "Each report includes practical, actionable guidance for personal growth and self-transformation. SuperBazi helps you reach your highest potential."
+        }
+      }
+    },
+    "howItWorks": {
+      "overline": "Guided Transformation",
+      "title": "Your Path to Self-Awareness in 3 Simple Steps",
+      "subtitle": "Begin your journey with a seamless process designed to reveal your unique energy map. Each step is clear, intuitive, and crafted to help you understand yourself on a deeper level.",
+      "steps": {
+        "birthData": {
+          "title": "Enter Your Birth Data",
+          "desc": "Provide your hour, date, month, year, and place of birth for the most precise chart mapping."
+        },
+        "aiAnalysis": {
+          "title": "SuperBazi AI Energy Analysis",
+          "desc": "Our advanced technology reads your personal energy pattern and elemental structure."
+        },
+        "instantResults": {
+          "title": "Instant Results",
+          "desc": "Receive comprehensive insights on your personality, career, business, health, relationships, and more."
+        }
+      }
+    },
+    "clarity": {
+      "overline": "Real Insight, Real Results",
+      "title": "The Clarity You Gain with SuperBazi",
+      "subtitle": "Discover the hidden patterns shaping your personality, relationships, career direction, and life decisions — all distilled into clear, practical insights you can apply immediately.",
+      "items": {
+        "direction": {
+          "text": "Confused about direction",
+          "desc": "Feeling unsure about where life, career, or relationships are heading."
+        },
+        "path": {
+          "text": "Clear career/business/health/relationship path",
+          "desc": "Understanding the most aligned decisions and directions for your life."
+        },
+        "stuck": {
+          "text": "Stuck or unmotivated",
+          "desc": "Lacking energy, momentum, or clarity to move forward."
+        },
+        "strengths": {
+          "text": "Recognize strengths and momentum",
+          "desc": "Gaining awareness of your natural abilities and how to use them effectively."
+        },
+        "stress": {
+          "text": "Stressed with decisions",
+          "desc": "Feeling overwhelmed when choosing between options or opportunities."
+        },
+        "choices": {
+          "text": "Make confident, energy-aligned choices",
+          "desc": "Making decisions that feel natural, empowered, and right for your energy."
+        }
+      }
+    },
+    "keyFeatures": {
+      "overline": "Key Features",
+      "title": "Benefit-Driven Features for Real Transformation",
+      "subtitle": "SuperBazi is more than just a BaZi calculator — it’s a guidance system that combines advanced analysis with practical, easy-to-follow insights.",
+      "items": {
+        "analysis": {
+          "title": "Advanced BaZi Analysis",
+          "highlight": "Fast, accurate, and easy to understand",
+          "desc": "SuperBazi uses advanced BaZi analysis technology to process your chart in seconds, delivering professional-level insight in a format anyone can digest."
+        },
+        "guidance": {
+          "title": "Personalized Guidance",
+          "highlight": "Career, business, relationships, self-growth",
+          "desc": "Receive tailored recommendations for your unique energy blueprint — from work and wealth to love and personal development — no more generic, one-size-fits-all advice."
+        },
+        "report12": {
+          "title": "Full 12-Aspects Report",
+          "highlight": "Upgrade to a complete life map",
+          "desc": "Start with a free basic report and upgrade to the Full BaZi Report that covers 12 key aspects of life, including wealth, health, purpose, timing, and more."
+        },
+        "masters": {
+          "title": "Consult with BaZi Masters",
+          "highlight": "Online consultation with certified experts",
+          "desc": "Combine AI precision with human wisdom. Book online consultation sessions with certified BaZi Masters directly through SuperBazi for deeper clarity and strategy."
+        }
+      }
+    },
+    "pricing": {
+      "overline": "Plans & Pricing",
+      "title": "Simple Plans. Powerful Insights.",
+      "recommended": "Recommended",
+      "cta": {
+        "basic": "Start Now (Free)",
+        "full": "Upgrade to Full Report"
+      },
+      "features": {
+        "charts": "Core Element Profile",
+        "basic": "Basic Personality Overview",
+        "personality": "Personality",
+        "talents": "Talents",
+        "career": "Career",
+        "business": "Business",
+        "wealth": "Wealth",
+        "relationship": "Relationship",
+        "health": "Health",
+        "destinyStars": "Destiny Stars",
+        "lifeMission": "Life Mission"
+      },
+      "plans": {
+        "basic": {
+          "name": "Basic",
+          "desc": "Essential self-knowledge",
+          "paymentType": "Forever free"
+        },
+        "full": {
+          "name": "Full Report",
+          "desc": "Complete life map and actionable guidance",
+          "paymentType": "One-time payment"
+        }
+      }
+    },
+    "abilities": {
+      "overline": "SuperBazi Abilities",
+      "title": "Answers for Every Area of Your Life",
+      "subtitle": "SuperBazi can provide you with answers to questions in every aspect of life — from career and business to health, relationships, and life challenges.",
+      "closing": "And all other questions about every aspect of life — SuperBazi is here to guide you.",
+      "items": {
+        "career": {
+          "title": "Career & Success",
+          "tagline": "Find the path that truly fits you",
+          "question": "What career will make me more successful?",
+          "desc": "Discover roles, industries, and work styles that align with your natural strengths and energy, so you can grow faster with less resistance."
+        },
+        "business": {
+          "title": "Business Direction",
+          "tagline": "Build a business in your sweet spot",
+          "question": "What business is most suitable for me?",
+          "desc": "Identify the type of business, model, and positioning that resonates with your BaZi chart and maximizes your chances of success."
+        },
+        "wealth": {
+          "title": "Wealth & Investment",
+          "tagline": "Make smarter money moves",
+          "question": "What type of investment will be most profitable for me?",
+          "desc": "Understand how your wealth energy flows — which types of investments are more in tune with your chart and which to be cautious about."
+        },
+        "health": {
+          "title": "Health & Vitality",
+          "tagline": "See the energetic root of illness",
+          "question": "What is the cause of the illness I’m experiencing?",
+          "desc": "Reveal potential weak elements or organs in your energy blueprint and gain guidance on how to balance and support your health."
+        },
+        "love": {
+          "title": "Love & Compatibility",
+          "tagline": "Choose the right people",
+          "question": "Among the people approaching me, who is the best match for me?",
+          "desc": "Compare charts to see compatibility patterns, emotional dynamics, and long-term potential in love, marriage, and partnerships."
+        },
+        "marriage": {
+          "title": "Marriage & Difficult Decisions",
+          "tagline": "Navigate tough turning points",
+          "question": "I’m going through a difficult marriage — what decision should I make?",
+          "desc": "Understand the timing, lessons, and karmic themes in your relationship so you can decide with clarity, not just emotion."
+        },
+        "challenges": {
+          "title": "Facing Life Challenges",
+          "tagline": "Transform pressure into growth",
+          "question": "I’m facing many challenges — what should I do?",
+          "desc": "See how current luck cycles interact with your chart and what strategic moves, mindset shifts, or timing adjustments you can make."
+        },
+        "all": {
+          "title": "All Areas of Life",
+          "tagline": "A map for your entire journey",
+          "question": "What about other areas of my life?",
+          "desc": "From family and friendships to timing major moves, SuperBazi helps you ask better questions and get clearer answers for every chapter of life."
+        }
+      }
+    },
+    "faq": {
+      "overline": "FAQ",
+      "title": "Frequently Asked Questions",
+      "subtitle": "Answers to the most common questions about BaZi and SuperBazi.",
+      "items": {
+        "whatIsBazi": {
+          "q": "What is BaZi?",
+          "a": "BaZi is an ancient Chinese metaphysical system that decodes your energy blueprint to reveal personality, potential, timing, and life direction."
+        },
+        "needKnowledge": {
+          "q": "Do I need prior knowledge of BaZi?",
+          "a": "Not at all. All SuperBazi reports are written in clear, simple, modern language — no metaphysics background required."
+        },
+        "dataSecure": {
+          "q": "Is my data secure?",
+          "a": "Yes. SuperBazi follows global privacy and security best practices to protect your personal information."
+        },
+        "howLong": {
+          "q": "How long does it take?",
+          "a": "Results appear instantly. Once you submit your birth details, your insights are generated right away."
+        },
+        "noBirthHour": {
+          "q": "Can I use it without a birth hour?",
+          "a": "Yes. You’ll still receive meaningful insights, although having your birth hour makes the analysis more precise."
+        },
+        "consultation": {
+          "q": "Is there private consultation available?",
+          "a": "Yes. After registration, you can schedule a private consultation with certified BaZi Masters through the platform."
+        },
+        "compatibility": {
+          "q": "Can I analyze compatibility with a partner?",
+          "a": "Yes. Our Relationship Compatibility feature allows you to compare and understand the energetic dynamics between you and your partner."
+        },
+        "guarantee": {
+          "q": "Is there a guarantee?",
+          "a": "Yes. We provide a 7-day satisfaction guarantee for Full Report users, subject to our terms and conditions."
+        },
+        "languages": {
+          "q": "Is it available in English?",
+          "a": "Yes. SuperBazi reports are available in both English and Indonesian, with more languages planned in the future."
+        },
+        "upgrade": {
+          "q": "How do I upgrade?",
+          "a": "Simply click “Upgrade to Full Report”, choose your preferred payment method, and your Full Report will be unlocked instantly."
+        }
+      }
+    },
+    "cta": {
+      "title": "It’s time to understand your energy.",
+      "subtitle": "Every big decision begins with self-awareness. Unlock your true potential today.",
+      "button": "Start Free Analysis Now",
+      "trustLine": "No credit card required · Instant personalized results"
+    }
+  }
+}

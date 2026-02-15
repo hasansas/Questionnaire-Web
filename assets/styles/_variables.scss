@@ -1,0 +1,157 @@
+@use "sass:color";
+
+// Color variables
+$color-bg: #f8f9fa;
+$color-card-bg: #fff;
+$color-primary: #20c15e;
+$color-primary-light-1: color.mix(#fff, $color-primary, 22%);
+$color-primary-light-2: color.mix(#fff, $color-primary, 35%);
+$color-primary-light-3: color.mix(#fff, $color-primary, 50%);
+$color-primary-light-4: color.mix(#fff, $color-primary, 65%);
+$color-primary-light-5: color.mix(#fff, $color-primary, 80%);
+$color-primary-dark-1: color.mix(#000, $color-primary, 20%);
+$color-primary-dark-2: color.mix(#000, $color-primary, 35%);
+$color-primary-dark-3: color.mix(#000, $color-primary, 50%);
+$color-primary-dark-4: color.mix(#000, $color-primary, 65%);
+$color-primary-dark-5: color.mix(#000, $color-primary, 80%);
+$color-secondary: #ffc107;
+$color-secondary-light-1: color.mix(#fff, $color-secondary, 22%);
+$color-secondary-light-2: color.mix(#fff, $color-secondary, 35%);
+$color-secondary-light-3: color.mix(#fff, $color-secondary, 50%);
+$color-secondary-light-4: color.mix(#fff, $color-secondary, 65%);
+$color-secondary-light-5: color.mix(#fff, $color-secondary, 80%);
+$color-secondary-dark-1: color.mix(#000, $color-secondary, 20%);
+$color-secondary-dark-2: color.mix(#000, $color-secondary, 35%);
+$color-secondary-dark-3: color.mix(#000, $color-secondary, 50%);
+$color-secondary-dark-4: color.mix(#000, $color-secondary, 65%);
+$color-secondary-dark-5: color.mix(#000, $color-secondary, 80%);
+$color-primary-soft: color.mix(#fff, $color-primary, 90%);
+$color-primary-soften: color.mix(#fff, $color-primary, 97%);
+$color-primary-border: color.mix(#fff, $color-primary, 70%);
+$color-secondary-soft: color.mix(#fff, $color-secondary, 90%);
+$color-secondary-soften: color.mix(#fff, $color-secondary, 95%);
+$color-secondary-border: color.mix(#fff, $color-secondary, 50%);
+$color-surface: #fff;
+$color-accent: #82b1ff;
+$color-error: #ff5252;
+$color-error-soft: color.mix(#fff, $color-error, 95%);
+$color-info: #2196f3;
+$color-success: #4caf50;
+$color-warning: #ffc107;
+$color-shadow: 0 6px 32px 0 rgba(84, 158, 69, 0.1);
+
+// $color-shadow: 0 10px 30px -5px rgba(84, 158, 69, 0.2), 0 4px 10px -2px rgba(84, 158, 69, 0.08);
+
+$color-text-grey: #8d8d8d;
+$color-border: color.mix(#fff, $color-text-grey, 80%) !important;
+
+// Font family and weights
+$font-family: "Lato", Arial, sans-serif;
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-bold: 700;
+
+// Typography sizes (desktop / base)
+$text-h1: 3.4rem;
+$text-h2: 2.5rem;
+$text-h3: 2rem;
+$text-h4: 1.5rem;
+$text-h5: 1.25rem;
+$text-h6: 1rem;
+$text-body-1: 1.1rem;
+$text-body-2: 0.96rem;
+$text-subtitle-1: 1rem;
+$text-subtitle-2: 0.875rem;
+$text-button: 0.875rem;
+$text-caption: 0.75rem;
+$text-overline: 0.625rem;
+
+// Typography sizes for small screens
+$text-h1-sm: 2.4rem;
+$text-h2-sm: 1.9rem;
+$text-h3-sm: 1.6rem;
+$text-h4-sm: 1.35rem;
+$text-h5-sm: 1.15rem;
+$text-h6-sm: 1rem;
+
+$text-body-1-sm: 1rem;
+$text-body-2-sm: 0.9rem;
+$text-subtitle-1-sm: 1.02rem;
+$text-subtitle-2-sm: 0.92rem;
+$text-button-sm: 0.9rem;
+$text-caption-sm: 0.78rem;
+$text-overline-sm: 0.7rem;
+
+// Line heights
+$line-height-heading: 1.2;
+$line-height-body: 1.6;
+$line-height-tight: 1.25;
+
+// Breakpoints
+$bp-mobile-max: 600px;
+
+// ------------------------------------------------------
+// Export typography tokens as CSS custom properties
+// so you can use var(--text-h1) etc. everywhere.
+// ------------------------------------------------------
+
+:root {
+  /* Font family */
+  --font-family: #{$font-family};
+
+  /* Heading sizes */
+  --text-h1: #{$text-h1};
+  --text-h2: #{$text-h2};
+  --text-h3: #{$text-h3};
+  --text-h4: #{$text-h4};
+  --text-h5: #{$text-h5};
+  --text-h6: #{$text-h6};
+
+  /* Body & misc sizes */
+  --text-body-1: #{$text-body-1};
+  --text-body-2: #{$text-body-2};
+  --text-subtitle-1: #{$text-subtitle-1};
+  --text-subtitle-2: #{$text-subtitle-2};
+  --text-button: #{$text-button};
+  --text-caption: #{$text-caption};
+  --text-overline: #{$text-overline};
+
+  /* Line heights */
+  --line-height-heading: #{$line-height-heading};
+  --line-height-body: #{$line-height-body};
+  --line-height-tight: #{$line-height-tight};
+}
+
+/**
+ * On small screens:
+ * - Use the `*-sm` tokens
+ * - This makes all components that rely on var(--text-*) automatically
+ *   shrink appropriately on mobile without changing component code.
+ */
+// @media (max-width: $bp-mobile-max) {
+//   :root {
+//     --text-h1: #{$text-h1-sm};
+//     --text-h2: #{$text-h2-sm};
+//     --text-h3: #{$text-h3-sm};
+//     --text-h4: #{$text-h4-sm};
+//     --text-h5: #{$text-h5-sm};
+//     --text-h6: #{$text-h6-sm};
+
+//     --text-body-1: #{$text-body-1-sm};
+//     --text-body-2: #{$text-body-2-sm};
+//     --text-subtitle-1: #{$text-subtitle-1-sm};
+//     --text-subtitle-2: #{$text-subtitle-2-sm};
+//     --text-button: #{$text-button-sm};
+//     --text-caption: #{$text-caption-sm};
+//     --text-overline: #{$text-overline-sm};
+//   }
+// }
+
+// Field Variants
+$custom-field-variants: (
+  ".v-field--variant-outlined",
+  ".v-field--single-line",
+  ".v-field--no-label",
+  ".v-field--variant-solo"
+);

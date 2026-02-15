@@ -1,0 +1,57 @@
+{
+  "community": {
+    "seo": {
+      "title": "Join the SuperBazi Community",
+      "description": "Connect, learn, and grow with the SuperBazi Community. Join our exclusive Telegram channel and follow our social media for updates, promos, events, and community-only insights."
+    },
+    "kicker": "A place to connect and grow",
+    "title": "Join the SuperBazi Community",
+    "subtitle": "Connect, learn, and grow with the SuperBazi Community.",
+    "badges": {
+      "insights": "Insights",
+      "events": "Events",
+      "promos": "Promos",
+      "updates": "Updates"
+    },
+    "content": {
+      "p1": "Inside the SuperBazi Community, you’ll gain valuable insights on how to harness universal energy and ancient metaphysical wisdom to elevate and transform your life.",
+      "p2": "As a community member, you’ll also receive exclusive updates from SuperBazi — including special promotions, important announcements, upcoming events, and other insightful content shared only within our circle."
+    },
+    "benefits": {
+      "title": "What you’ll get inside",
+      "items": [
+        "Weekly insights on energy alignment and practical self-improvement",
+        "Community-only updates: promos, announcements, and upcoming events",
+        "Short, actionable guidance you can apply immediately",
+        "Supportive space to learn and grow with like-minded people"
+      ],
+      "note": "All content is designed to be clear, modern, and easy to apply."
+    },
+    "telegram": {
+      "label": "Join the SuperBazi Community on our Exclusive Telegram Channel at:",
+      "hint": "Tap the button to join, or copy the link if you want to share it.",
+      "cta": "Join Telegram",
+      "copy": "Copy Link",
+      "copied": "Copied!"
+    },
+    "social": {
+      "kicker": "Stay connected",
+      "label": "Follow us on our social media channels at:",
+      "desc": "Follow SuperBazi for bite-sized insights, updates, and community highlights.",
+      "items": {
+        "instagram": "Instagram",
+        "tiktok": "Tiktok",
+        "x": "X",
+        "threads": "Threads",
+        "youtube": "Youtube",
+        "facebook": "Facebook",
+        "whatsapp": "WhatsApp Channel"
+      }
+    },
+    "rightNote": {
+      "title": "Exclusive community updates",
+      "desc": "Promos, important announcements, and event reminders are shared directly with the community."
+    },
+    "footerNote": "Master Your Energy. Transform Your Life."
+  }
+}

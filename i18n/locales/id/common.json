@@ -1,0 +1,52 @@
+{
+  "common": {
+    "appName": "SuperBazi",
+    "tagline": "Kuasai Energimu. Ubah Hidupmu.",
+    "language": "Bahasa",
+    "loading": "Memuat...",
+    "pleaseWait": "Mohon tunggu",
+    "tryAgain": "Coba lagi",
+    "continue": "Lanjut",
+    "back": "Kembali",
+    "close": "Tutup",
+    "cancel": "Batal",
+    "confirm": "Konfirmasi",
+    "save": "Simpan",
+    "submit": "Kirim",
+    "search": "Cari",
+    "viewAll": "Lihat semua",
+    "learnMore": "Pelajari lebih lanjut",
+    "getStarted": "Mulai",
+    "comingSoon": "Segera hadir",
+    "optional": "Opsional",
+    "required": "Wajib",
+    "updated": "Diperbarui",
+    "copy": "Salin",
+    "copied": "Tersalin",
+    "or": "atau",
+    "yes": "Ya",
+    "no": "Tidak"
+  },
+  "status": {
+    "success": "Berhasil",
+    "failed": "Gagal",
+    "error": "Error",
+    "warning": "Peringatan",
+    "info": "Info"
+  },
+  "errors": {
+    "unknown": "Terjadi kesalahan.",
+    "network": "Gangguan jaringan. Periksa koneksi Anda.",
+    "unauthorized": "Anda belum punya akses. Silakan masuk.",
+    "forbidden": "Anda tidak memiliki akses ke halaman ini.",
+    "notFound": "Halaman tidak ditemukan.",
+    "timeout": "Permintaan terlalu lama. Silakan coba lagi."
+  },
+  "validation": {
+    "required": "Kolom ini wajib diisi.",
+    "email": "Masukkan alamat email yang valid.",
+    "minLength": "Minimal {min} karakter.",
+    "maxLength": "Maksimal {max} karakter.",
+    "passwordMismatch": "Kata sandi tidak sama."
+  }
+}

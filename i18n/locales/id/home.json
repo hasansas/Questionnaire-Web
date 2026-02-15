@@ -1,0 +1,251 @@
+{
+  "home": {
+    "hero": {
+      "titleLine1": "Kuasai Energimu,",
+      "titleLine2": "Ubah Hidupmu",
+      "subtitle": "Dapatkan analisis energi personalmu secara instan untuk menemukan kekuatan alami, jalur karier ideal, bisnis, potensi kekayaan, dan peluang terbaik dalam hidup hanya menggunakan tanggal lahir.",
+      "cta": "Mulai Analisis Gratis",
+      "trustLine": "Tanpa kartu kredit · Hasil personal instan",
+      "imageAlt": "SuperBazi Lima Elemen Yin Yang"
+    },
+    "why": {
+      "overline": "Kenapa SuperBazi",
+      "title": "Kejelasan Bertemu Teknologi",
+      "subtitle": "Rasakan kebijaksanaan BaZi yang dihadirkan ulang untuk era modern, didukung AI dan pengetahuan dari para ahli.",
+      "features": {
+        "instant": {
+          "title": "Analisis Akurat & Instan",
+          "desc": "Dapatkan insight BaZi setara profesional secara instan — tanpa menunggu berminggu-minggu seperti konsultasi tradisional."
+        },
+        "expert": {
+          "title": "SuperBazi AI + Keahlian Master BaZi",
+          "desc": "Menggabungkan teknologi dan algoritma canggih dengan wawasan Master BaZi berpengalaman untuk hasil yang presisi dan mudah dipahami."
+        },
+        "action": {
+          "title": "Insight Personal, Aksi Nyata",
+          "desc": "Setiap laporan berisi panduan praktis dan dapat ditindaklanjuti untuk pertumbuhan diri dan transformasi. SuperBazi membantu Anda mencapai potensi terbaik."
+        }
+      }
+    },
+    "howItWorks": {
+      "overline": "Transformasi Terarah",
+      "title": "Jalan Menuju Pemahaman Diri dalam 3 Langkah Sederhana",
+      "subtitle": "Mulai perjalanan Anda dengan proses yang mulus untuk mengungkap peta energi unik Anda. Setiap langkah jelas, intuitif, dan dirancang untuk membantu Anda memahami diri lebih dalam.",
+      "steps": {
+        "birthData": {
+          "title": "Masukkan Data Kelahiran",
+          "desc": "Isi jam, tanggal, bulan, tahun, dan tempat lahir untuk pemetaan chart yang paling akurat."
+        },
+        "aiAnalysis": {
+          "title": "Analisis Energi dengan SuperBazi AI",
+          "desc": "Teknologi kami membaca pola energi personal dan struktur elemen Anda secara cerdas."
+        },
+        "instantResults": {
+          "title": "Hasil Instan",
+          "desc": "Dapatkan insight menyeluruh tentang kepribadian, karier, bisnis, kesehatan, relasi, dan lainnya."
+        }
+      }
+    },
+    "clarity": {
+      "overline": "Insight Nyata, Hasil Nyata",
+      "title": "Kejelasan yang Anda Dapatkan dengan SuperBazi",
+      "subtitle": "Temukan pola tersembunyi yang membentuk kepribadian, relasi, arah karier, dan keputusan hidup — dirangkum menjadi insight yang jelas, praktis, dan bisa langsung Anda terapkan.",
+      "items": {
+        "direction": {
+          "text": "Bingung menentukan arah",
+          "desc": "Tidak yakin ke mana arah hidup, karier, atau hubungan Anda berjalan."
+        },
+        "path": {
+          "text": "Arah karier/bisnis/kesehatan/relasi lebih jelas",
+          "desc": "Memahami keputusan dan arah yang paling selaras untuk hidup Anda."
+        },
+        "stuck": {
+          "text": "Terasa stuck atau tidak termotivasi",
+          "desc": "Kehilangan energi, momentum, atau kejelasan untuk melangkah maju."
+        },
+        "strengths": {
+          "text": "Mengenali kekuatan dan momentum",
+          "desc": "Menyadari kemampuan alami Anda dan cara memakainya secara efektif."
+        },
+        "stress": {
+          "text": "Stres saat mengambil keputusan",
+          "desc": "Kewalahan ketika memilih antara opsi atau peluang yang ada."
+        },
+        "choices": {
+          "text": "Membuat pilihan dengan percaya diri dan selaras energi",
+          "desc": "Mengambil keputusan yang terasa natural, lebih yakin, dan sesuai energi Anda."
+        }
+      }
+    },
+    "keyFeatures": {
+      "overline": "Fitur Utama",
+      "title": "Fitur Berbasis Manfaat untuk Transformasi Nyata",
+      "subtitle": "SuperBazi bukan sekadar kalkulator BaZi — ini adalah sistem panduan yang menggabungkan analisis canggih dengan insight praktis yang mudah diikuti.",
+      "items": {
+        "analysis": {
+          "title": "Analisis BaZi Tingkat Lanjut",
+          "highlight": "Cepat, akurat, dan mudah dipahami",
+          "desc": "SuperBazi memproses chart Anda dalam hitungan detik, menghasilkan insight setara profesional dalam format yang mudah dicerna siapa pun."
+        },
+        "guidance": {
+          "title": "Panduan yang Dipersonalisasi",
+          "highlight": "Karier, bisnis, relasi, pengembangan diri",
+          "desc": "Dapatkan rekomendasi yang disesuaikan dengan blueprint energi Anda — dari kerja dan finansial hingga cinta dan pengembangan diri — tanpa saran generik yang serba sama."
+        },
+        "report12": {
+          "title": "Laporan Lengkap 12 Aspek",
+          "highlight": "Upgrade ke peta hidup yang menyeluruh",
+          "desc": "Mulai dari laporan dasar gratis dan upgrade ke Full BaZi Report yang membahas 12 aspek penting kehidupan, termasuk kekayaan, kesehatan, tujuan, timing, dan lainnya."
+        },
+        "masters": {
+          "title": "Konsultasi dengan Master BaZi",
+          "highlight": "Konsultasi online dengan ahli tersertifikasi",
+          "desc": "Gabungkan presisi AI dengan kebijaksanaan manusia. Booking sesi konsultasi online dengan Master BaZi tersertifikasi langsung melalui SuperBazi untuk kejelasan dan strategi yang lebih dalam."
+        }
+      }
+    },
+    "pricing": {
+      "overline": "Paket & Harga",
+      "title": "Paket Simpel. Insight Powerful.",
+      "recommended": "Rekomendasi",
+      "cta": {
+        "basic": "Mulai Sekarang (Gratis)",
+        "full": "Upgrade ke Full Report"
+      },
+      "features": {
+        "charts": "Profil Elemen Inti",
+        "basic": "Ringkasan Kepribadian Dasar",
+        "personality": "Kepribadian",
+        "talents": "Bakat",
+        "career": "Karier",
+        "business": "Bisnis",
+        "wealth": "Kekayaan",
+        "relationship": "Relasi",
+        "health": "Kesehatan",
+        "destinyStars": "Bintang Takdir",
+        "lifeMission": "Misi Hidup"
+      },
+      "plans": {
+        "basic": {
+          "name": "Basic",
+          "desc": "Pemahaman diri yang esensial",
+          "paymentType": "Gratis selamanya"
+        },
+        "full": {
+          "name": "Full Report",
+          "desc": "Peta hidup lengkap + panduan yang bisa langsung dipraktikkan",
+          "paymentType": "Pembayaran sekali"
+        }
+      }
+    },
+    "abilities": {
+      "overline": "Kemampuan SuperBazi",
+      "title": "Jawaban untuk Setiap Area Hidup Anda",
+      "subtitle": "SuperBazi dapat membantu menjawab pertanyaan di berbagai aspek kehidupan — mulai dari karier dan bisnis hingga kesehatan, relasi, dan tantangan hidup.",
+      "closing": "Dan semua pertanyaan lainnya tentang berbagai aspek kehidupan — SuperBazi siap membimbing Anda.",
+      "items": {
+        "career": {
+          "title": "Karier & Kesuksesan",
+          "tagline": "Temukan jalur yang benar-benar cocok",
+          "question": "Karier apa yang membuat saya lebih sukses?",
+          "desc": "Temukan peran, industri, dan gaya kerja yang selaras dengan kekuatan alami dan energi Anda agar berkembang lebih cepat dengan hambatan lebih kecil."
+        },
+        "business": {
+          "title": "Arah Bisnis",
+          "tagline": "Bangun bisnis di area terbaik Anda",
+          "question": "Bisnis apa yang paling cocok untuk saya?",
+          "desc": "Identifikasi jenis bisnis, model, dan positioning yang selaras dengan chart BaZi Anda untuk memaksimalkan peluang sukses."
+        },
+        "wealth": {
+          "title": "Kekayaan & Investasi",
+          "tagline": "Ambil keputusan finansial lebih cerdas",
+          "question": "Jenis investasi apa yang paling menguntungkan untuk saya?",
+          "desc": "Pahami aliran energi kekayaan Anda — jenis investasi yang lebih selaras dengan chart Anda dan mana yang perlu diwaspadai."
+        },
+        "health": {
+          "title": "Kesehatan & Vitalitas",
+          "tagline": "Lihat akar energi dari keluhan",
+          "question": "Apa penyebab keluhan kesehatan yang saya rasakan?",
+          "desc": "Ungkap elemen atau organ yang berpotensi lemah dalam blueprint energi Anda serta panduan untuk menyeimbangkan dan mendukung kesehatan."
+        },
+        "love": {
+          "title": "Cinta & Kecocokan",
+          "tagline": "Pilih orang yang tepat",
+          "question": "Dari orang yang mendekati saya, siapa yang paling cocok?",
+          "desc": "Bandingkan chart untuk melihat pola kecocokan, dinamika emosi, dan potensi jangka panjang dalam cinta, pernikahan, dan kerja sama."
+        },
+        "marriage": {
+          "title": "Pernikahan & Keputusan Sulit",
+          "tagline": "Hadapi titik balik dengan tenang",
+          "question": "Saya sedang menjalani pernikahan yang sulit — keputusan apa yang harus saya ambil?",
+          "desc": "Pahami timing, pelajaran, dan tema karmis dalam relasi Anda agar bisa memutuskan dengan jernih, bukan hanya emosi."
+        },
+        "challenges": {
+          "title": "Menghadapi Tantangan Hidup",
+          "tagline": "Ubah tekanan menjadi pertumbuhan",
+          "question": "Saya menghadapi banyak tantangan — apa yang harus saya lakukan?",
+          "desc": "Lihat bagaimana luck cycle saat ini berinteraksi dengan chart Anda serta strategi, pola pikir, atau penyesuaian timing yang bisa Anda lakukan."
+        },
+        "all": {
+          "title": "Semua Area Kehidupan",
+          "tagline": "Peta untuk seluruh perjalanan Anda",
+          "question": "Bagaimana dengan area hidup saya yang lain?",
+          "desc": "Dari keluarga dan pertemanan hingga timing langkah besar, SuperBazi membantu Anda bertanya lebih tepat dan mendapat jawaban lebih jelas di setiap fase hidup."
+        }
+      }
+    },
+    "faq": {
+      "overline": "FAQ",
+      "title": "Pertanyaan yang Sering Diajukan",
+      "subtitle": "Jawaban untuk pertanyaan paling umum tentang BaZi dan SuperBazi.",
+      "items": {
+        "whatIsBazi": {
+          "q": "Apa itu BaZi?",
+          "a": "BaZi adalah sistem metafisika Tiongkok kuno yang membaca blueprint energi Anda untuk mengungkap kepribadian, potensi, timing, dan arah hidup."
+        },
+        "needKnowledge": {
+          "q": "Apakah saya perlu paham BaZi dulu?",
+          "a": "Tidak perlu. Semua laporan SuperBazi ditulis dengan bahasa modern yang jelas dan mudah dipahami — tanpa perlu latar belakang metafisika."
+        },
+        "dataSecure": {
+          "q": "Apakah data saya aman?",
+          "a": "Ya. SuperBazi mengikuti praktik terbaik privasi dan keamanan global untuk melindungi informasi pribadi Anda."
+        },
+        "howLong": {
+          "q": "Berapa lama prosesnya?",
+          "a": "Hasil muncul secara instan. Setelah Anda mengisi data kelahiran, insight akan langsung dibuat."
+        },
+        "noBirthHour": {
+          "q": "Bisakah saya pakai tanpa jam lahir?",
+          "a": "Bisa. Anda tetap mendapatkan insight yang bermakna, walau jam lahir membuat analisis lebih presisi."
+        },
+        "consultation": {
+          "q": "Apakah ada konsultasi private?",
+          "a": "Ada. Setelah registrasi, Anda dapat menjadwalkan konsultasi private dengan Master BaZi tersertifikasi melalui platform."
+        },
+        "compatibility": {
+          "q": "Bisakah saya menganalisis kecocokan dengan pasangan?",
+          "a": "Bisa. Fitur Relationship Compatibility membantu Anda membandingkan dan memahami dinamika energi antara Anda dan pasangan."
+        },
+        "guarantee": {
+          "q": "Apakah ada garansi?",
+          "a": "Ya. Kami memberikan garansi kepuasan 7 hari untuk pengguna Full Report, sesuai syarat dan ketentuan yang berlaku."
+        },
+        "languages": {
+          "q": "Apakah tersedia dalam Bahasa Inggris?",
+          "a": "Ya. Laporan SuperBazi tersedia dalam Bahasa Inggris dan Bahasa Indonesia, dan akan ada bahasa lain di masa depan."
+        },
+        "upgrade": {
+          "q": "Bagaimana cara upgrade?",
+          "a": "Cukup klik “Upgrade ke Full Report”, pilih metode pembayaran yang Anda inginkan, dan Full Report akan langsung terbuka."
+        }
+      }
+    },
+    "cta": {
+      "title": "Saatnya memahami energimu.",
+      "subtitle": "Setiap keputusan besar dimulai dari pemahaman diri. Buka potensi terbaikmu hari ini.",
+      "button": "Mulai Analisis Gratis",
+      "trustLine": "Tanpa kartu kredit · Hasil personal instan"
+    }
+  }
+}

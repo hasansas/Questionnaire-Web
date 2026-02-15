@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Beranda",
+    "features": "Fitur",
+    "pricing": "Harga",
+    "faq": "FAQ",
+    "about": "Tentang Kami",
+    "contact": "Kontak",
+    "testimonials": "Testimoni",
+    "register": "Daftar",
+    "login": "Masuk",
+    "signIn": "Masuk",
+    "cookie": "Kebijakan Cookie",
+    "forgotPassword": "Lupa Kata Sandi",
+    "resetPassword": "Atur Ulang Kata Sandi",
+    "policy": "Kebijakan Privasi",
+    "termsOfService": "Syarat & Ketentuan",
+    "community": "Komunitas"
+  }
+}

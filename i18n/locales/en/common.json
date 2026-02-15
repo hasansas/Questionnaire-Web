@@ -1,0 +1,52 @@
+{
+  "common": {
+    "appName": "SuperBazi",
+    "tagline": "Master Your Energy. Transform Your Life.",
+    "language": "Language",
+    "loading": "Loading...",
+    "pleaseWait": "Please wait",
+    "tryAgain": "Try again",
+    "continue": "Continue",
+    "back": "Back",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "submit": "Submit",
+    "search": "Search",
+    "viewAll": "View all",
+    "learnMore": "Learn more",
+    "getStarted": "Get started",
+    "comingSoon": "Coming soon",
+    "optional": "Optional",
+    "required": "Required",
+    "updated": "Updated",
+    "copy": "Copy",
+    "copied": "Copied",
+    "or": "or",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "status": {
+    "success": "Success",
+    "failed": "Failed",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "errors": {
+    "unknown": "Something went wrong.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You’re not authorized. Please sign in.",
+    "forbidden": "You don’t have access to this.",
+    "notFound": "Page not found.",
+    "timeout": "Request timed out. Please try again."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "email": "Please enter a valid email address.",
+    "minLength": "Must be at least {min} characters.",
+    "maxLength": "Must be at most {max} characters.",
+    "passwordMismatch": "Passwords do not match."
+  }
+}
