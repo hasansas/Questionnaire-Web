@@ -1,0 +1,25 @@
+{
+  "footer": {
+    "about": {
+      "p1": "SB Questionnaire adalah platform assessment B2B yang membantu organisasi membuat kuesioner, mengumpulkan data responden, dan melakukan scoring otomatis.",
+      "p2": "Ubah jawaban mentah menjadi outcome yang konsisten dan laporan yang siap diekspor, dirancang untuk sekolah, universitas, dan program mitra yang menjalankan assessment dalam skala besar."
+    },
+    "follow": "Ikuti",
+    "contact": {
+      "title": "Kontak"
+    },
+    "quickLinks": {
+      "title": "Tautan Cepat"
+    },
+    "resources": {
+      "title": "Sumber Daya",
+      "subtitle": "Tautan penting untuk SB Questionnaire."
+    },
+    "bottom": {
+      "copyright": "© Hak cipta SB Questionnaire {year}. Semua hak dilindungi.",
+      "poweredBy": "Didukung oleh",
+      "vemobo": "Vemobo Technology",
+      "note": "Hubungi Vemobo jika Anda ingin membangun software assessment khusus atau sistem bisnis custom lainnya."
+    }
+  }
+}

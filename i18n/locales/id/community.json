@@ -1,0 +1,57 @@
+{
+  "community": {
+    "seo": {
+      "title": "SuperBazi Community",
+      "description": "Mari terhubung, belajar, berkembang, dan bertumbuh bersama di SuperBazi Community. Gabung Telegram eksklusif dan ikuti sosial media kami untuk update, promo, event, dan insight khusus komunitas."
+    },
+    "kicker": "Tempat untuk terhubung dan bertumbuh",
+    "title": "SuperBazi Community",
+    "subtitle": "Mari terhubung, belajar, berkembang dan bertumbuh bersama di SuperBazi Community.",
+    "badges": {
+      "insights": "Insight",
+      "events": "Event",
+      "promos": "Promo",
+      "updates": "Update"
+    },
+    "content": {
+      "p1": "Di komunitas SuperBazi, Anda akan menemukan banyak insight berharga tentang bagaimana memanfaatkan energi “Universe Intelligance” dan “Metaphysical Science” untuk meningkatkan kualitas hidup Anda.",
+      "p2": "Sebagai anggota komunitas, Anda juga akan menerima update eksklusif dari SuperBazi — mulai dari promo spesial, event penting, hingga konten-konten menarik yang hanya dibagikan kepada komunitas."
+    },
+    "benefits": {
+      "title": "Apa yang Anda dapatkan",
+      "items": [
+        "Insight rutin tentang energy alignment dan pengembangan diri yang praktis",
+        "Update khusus komunitas: promo, pengumuman, dan event yang akan datang",
+        "Panduan singkat yang actionable dan bisa langsung diterapkan",
+        "Ruang yang suportif untuk belajar dan bertumbuh bersama"
+      ],
+      "note": "Semua konten dibuat modern, jelas, dan mudah dipraktikkan."
+    },
+    "telegram": {
+      "label": "Gabung SuperBazi Community di Channel Telegram kami di:",
+      "hint": "Klik tombol untuk bergabung, atau copy link jika ingin membagikannya.",
+      "cta": "Gabung Telegram",
+      "copy": "Copy Link",
+      "copied": "Tersalin!"
+    },
+    "social": {
+      "kicker": "Tetap terhubung",
+      "label": "Silahkan ikuti juga Social Media kami di:",
+      "desc": "Ikuti SuperBazi untuk insight singkat, update terbaru, dan highlight komunitas.",
+      "items": {
+        "instagram": "Instagram",
+        "tiktok": "Tiktok",
+        "x": "X",
+        "threads": "Threads",
+        "youtube": "Youtube",
+        "facebook": "Facebook",
+        "whatsapp": "WhatsApp Channel"
+      }
+    },
+    "rightNote": {
+      "title": "Update eksklusif komunitas",
+      "desc": "Promo, pengumuman penting, dan pengingat event dibagikan langsung ke komunitas."
+    },
+    "footerNote": "Master Your Energy. Transform Your Life."
+  }
+}

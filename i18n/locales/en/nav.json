@@ -1,0 +1,20 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "about": "About",
+    "contact": "Contact",
+    "testimonials": "Testimonials",
+    "register": "Register",
+    "login": "Login",
+    "signIn": "Sign In",
+    "cookie": "Cookie Policy",
+    "forgotPassword": "Forgot Password",
+    "resetPassword": "Reset Password",
+    "policy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "community": "Community"
+  }
+}

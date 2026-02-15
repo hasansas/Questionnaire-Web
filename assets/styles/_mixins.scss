@@ -1,0 +1,76 @@
+// assets/styles/_mixins.scss
+
+@mixin soft-gradient {
+  background: linear-gradient(135deg, #e4eafe 0%, #f8f9fb 85%) !important;
+}
+
+@mixin soft-shadow {
+  box-shadow: $color-shadow !important;
+}
+
+@mixin card-radius {
+  border-radius: 1.2rem !important;
+}
+
+@mixin section-padding {
+  padding-top: 4.5rem;
+  padding-bottom: 4.5rem;
+
+  @media (max-width: 959px) {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  @media (max-width: 599px) {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+  }
+}
+
+@mixin superbazi-field-icon-colors($color) {
+
+  .v-field__prepend,
+  .v-field__prepend-inner,
+  .v-field__append-inner,
+  .v-field__append {
+    color: $color !important;
+    transition: color 0.22s cubic-bezier(0.5, 1.8, 0.5, 0.8);
+  }
+}
+
+// Animated mesh for spiritual / soft gradient backgrounds
+// Put this in your globals (after variables, before section classes)
+@mixin superbazi-mesh($c1,
+  $c2,
+  $c3,
+  $c4,
+  $blur: 80px,
+  $opacity: 0.9) {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 0% 0%, rgba($c1, 0.55), transparent 55%),
+    radial-gradient(circle at 100% 0%, rgba($c2, 0.55), transparent 55%),
+    radial-gradient(circle at 0% 100%, rgba($c3, 0.55), transparent 55%),
+    radial-gradient(circle at 100% 100%, rgba($c4, 0.55), transparent 55%);
+  filter: blur($blur);
+  opacity: $opacity;
+  pointer-events: none;
+  z-index: 0;
+  animation: superbazi-mesh-float 26s ease-in-out infinite alternate;
+}
+
+@keyframes superbazi-mesh-float {
+  0% {
+    transform: translate3d(-10px, -4px, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(10px, 8px, 0) scale(1.03);
+  }
+
+  100% {
+    transform: translate3d(0, -6px, 0) scale(1.01);
+  }
+}
