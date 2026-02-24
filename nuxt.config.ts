@@ -15,48 +15,46 @@ export default defineNuxtConfig({
       htmlAttrs: {
         lang: "en",
       },
-      title: "SuperBazi - Your Personal Bazi Analysis",
+      title: "SB Questionnaire - Assessments & Insights for Organizations",
       meta: [
         {
           name: "description",
           content:
-            "Super Bazi is an advanced BaZi (Four Pillars of Destiny) chart calculator. Instantly generate your personalized BaZi chart, analyze your destiny, and explore in-depth Chinese metaphysics—all in a beautiful, modern interface.",
+            "SB Questionnaire is a modern assessment platform for organizations. Create questionnaires, define scoring, collect responses, and generate clear, actionable insights—fast, secure, and easy to manage.",
         },
         {
           name: "keywords",
           content:
-            "BaZi, Four Pillars, Destiny, Chinese Astrology, Birth Chart, Super Bazi, Element Analysis, Pillars of Destiny, Metaphysics, Feng Shui",
+            "questionnaire app, assessment platform, survey builder, scoring rules, analytics, organization assessments, student assessment, employee assessment, SB",
         },
-        // Open Graph for social sharing
+
+        // Open Graph
         {
           property: "og:title",
-          content: "Super Bazi - BaZi Chart & Destiny Analysis",
+          content: "SB Questionnaire - Assessments & Insights",
         },
         {
           property: "og:description",
           content:
-            "Create your BaZi chart and uncover your destiny with Super Bazi. Modern, accurate, and easy-to-use BaZi calculator.",
+            "Build questionnaires, configure scoring, and turn responses into actionable insights for your organization.",
         },
-        // { property: 'og:image', content: '/superbazi-og-image.png' },
+        // { property: "og:image", content: "/sb-questionnaire-og.png" },
         { property: "og:type", content: "website" },
-        { property: "og:site_name", content: "Super Bazi" },
+        { property: "og:site_name", content: "SB Questionnaire" },
+
         // Twitter Card
         { name: "twitter:card", content: "summary_large_image" },
         {
           name: "twitter:title",
-          content: "Super Bazi - BaZi Chart & Destiny Analysis",
+          content: "SB Questionnaire - Assessments & Insights",
         },
         {
           name: "twitter:description",
           content:
-            "Unlock your destiny with Super Bazi’s BaZi (Four Pillars) chart calculator and personalized metaphysical insights.",
+            "Create questionnaires, apply scoring, and generate insights for schools, universities, and teams—powered by SB.",
         },
-        // { name: 'twitter:image', content: '/superbazi-og-image.png' },
+        // { name: "twitter:image", content: "/sb-questionnaire-og.png" },
       ],
-      link: [{ rel: "icon", type: "image/x-icon", href: "/favicon.ico" }],
-      // script: [
-      //   { src: 'https://cdn.example.com/some-global-script.js', body: true } // `body: true` places it at end of <body>
-      // ]
     },
   },
   modules: ["@nuxtjs/google-fonts", "@pinia/nuxt", "@nuxtjs/i18n"],
