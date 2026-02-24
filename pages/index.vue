@@ -2,7 +2,7 @@
 <template>
   <div>
     <!-- Hero -->
-    <section class="sb-section py-16">
+    <section class="sb-section py-16 sbq-hero">
       <v-container class="main-container">
         <v-row align="center" class="py-10" dense>
           <v-col cols="12" md="6" class="pr-md-10">
@@ -133,16 +133,23 @@
               </div>
             </div>
             <div class="pa-6 mt-8">
-              <div class="d-flex flex-column ga-4">
-                <div
-                  v-for="(p, i) in platformBullets"
-                  :key="i"
-                  class="d-flex align-center ga-2 text-body-2"
-                >
-                  <v-icon size="18" icon="lucide:check" color="primary" />
-                  <span class="text-medium-emphasis">{{ p }}</span>
+              <v-card variant="outlined" rounded="xl">
+                <div v-for="(p, i) in platformBullets">
+                  <div class="d-flex align-center text-body-2 py-4 px-6">
+                    <v-icon
+                      size="18"
+                      icon="lucide:check"
+                      color="primary"
+                      class="mr-4"
+                    />
+                    <span class="text-medium-emphasis">{{ p }}</span>
+                  </div>
+                  <v-divider
+                    v-if="i < platformBullets.length - 1"
+                    class="my-0"
+                  />
                 </div>
-              </div>
+              </v-card>
             </div>
           </v-col>
         </v-row>
@@ -247,7 +254,7 @@
             <v-card
               rounded="xl"
               :variant="plan.featured ? 'flat' : 'outlined'"
-              :class="plan.featured ? 'sbq-pricing-featured' : ''"
+              :class="plan.featured ? 'sbq-pricing-featured' : 'bg-white'"
               class="pa-6 h-100"
             >
               <div class="d-flex align-center justify-space-between">
@@ -569,8 +576,48 @@ const faqs = [
 <style scoped lang="scss">
 /* Keep CSS minimal; rely on Vuetify classes for everything else */
 
-.sbq-landing {
-  background: #ffffff;
+.sbq-hero {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background:
+      radial-gradient(
+        980px 560px at 14% 20%,
+        rgba(var(--v-theme-primary), 0.18),
+        transparent 56%
+      ),
+      radial-gradient(
+        760px 520px at 84% 18%,
+        rgba(var(--v-theme-primary), 0.1),
+        transparent 62%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(var(--v-theme-surface), 0.72),
+        rgba(var(--v-theme-surface), 1)
+      );
+    pointer-events: none;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
+    background-size: 18px 18px;
+    opacity: 0.1;
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  > .v-container {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 .sbq-hero-title {

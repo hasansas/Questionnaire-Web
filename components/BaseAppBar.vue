@@ -1,8 +1,8 @@
 <template>
   <ClientOnly>
     <v-app-bar
-      :elevation="appBarElevated ? 4 : 0"
-      :class="['superbazi-appbar', appBarElevated ? 'elevated' : '']"
+      :elevation="appBarElevated ? 1 : 0"
+      :class="['sb-appbar', appBarElevated ? 'elevated' : '']"
       height="72"
       flat
     >
