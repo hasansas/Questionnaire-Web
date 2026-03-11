@@ -7,7 +7,6 @@ import {
   type UserModel,
   type UserPreferenceModel,
 } from '~/models/user'
-import { type ProfileModel } from '~/models/profile'
 
 export const useUsersStore = defineStore('user', () => {
   const api = useApiService()
@@ -109,40 +108,6 @@ export const useUsersStore = defineStore('user', () => {
     return res
   }
 
-  /**
-   * Set user BaziProfile
-   */
-  async function setBaziProfile(
-    payload: ProfileModel
-  ) {
-
-    if (user.value) {
-      const baziProfile = payload
-      baziProfile.isMe = true
-      user.value.baziProfile = baziProfile
-    }
-
-    return user.value?.baziProfile
-  }
-
-  /**
-   * Set default BaziProfile
-   * PATCH /v1/profiles/:id
-   */
-  async function setBaziProfileDefault(
-    payload: ProfileModel
-  ) {
-    const res: ApiResult<null> = await api.patch(`/v1/profiles/${payload.id}`, { isMe: true })
-
-    if (res.success && user.value) {
-      const baziProfile = payload
-      baziProfile.isMe = true
-      user.value.baziProfile = baziProfile
-    }
-
-    return res
-  }
-
   return {
     // state
     user,
@@ -151,8 +116,6 @@ export const useUsersStore = defineStore('user', () => {
     fetchUser,
     updateUserProfile,
     fetchUserPreferences,
-    updateUserPreferences,
-    setBaziProfile,
-    setBaziProfileDefault
+    updateUserPreferences
   }
 })

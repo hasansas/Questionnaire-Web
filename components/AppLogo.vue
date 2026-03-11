@@ -12,6 +12,7 @@
       :color="toneColor"
       :variant="toneVariant"
       class="sbq-mark"
+      rounded="lg"
     >
       <v-icon :icon="icon" :color="iconColor" />
     </v-avatar>
@@ -23,8 +24,9 @@
         :color="toneColor"
         :variant="toneVariant"
         class="sbq-mark"
+        rounded="lg"
       >
-        <v-icon :icon="icon" :color="iconColor" />
+        <v-icon :icon="icon" :color="iconColor" size="16" />
       </v-avatar>
 
       <div class="ms-3 d-flex flex-column">
@@ -74,7 +76,7 @@ const props = withDefaults(
     height: 32,
     variant: "default",
     alt: "SB Questionnaire",
-    icon: "lucide:clipboard-check",
+    icon: "lucide:clipboard-list",
     showTagline: false,
     tagline: "Questionnaire to Report Platform",
     dark: false,
@@ -96,7 +98,7 @@ const iconSize = computed(() => {
  * - Dark surfaces: outlined + white icon for crisp contrast
  */
 const toneColor = computed(() => (props.dark ? "transparent" : "primary"));
-const toneVariant = computed(() => (props.dark ? "outlined" : "tonal"));
+const toneVariant = computed(() => (props.dark ? "outlined" : "flat"));
 const iconColor = computed(() => (props.dark ? "white" : undefined));
 </script>
 
