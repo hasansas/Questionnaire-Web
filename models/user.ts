@@ -1,5 +1,3 @@
-import { type ProfileModel, createDefaultProfile, normalizeProfile } from './profile'
-
 export interface ImageModel {
   name: string | null
   fileName: string | null
@@ -44,7 +42,6 @@ export interface UserModel {
   phoneNumber: string | null
   image: ImageModel
   profile: UserProfileModel,
-  baziProfile: ProfileModel,
   preference: UserPreferenceModel
 }
 
@@ -93,7 +90,6 @@ export const createDefaultUser = (): UserModel => ({
   phoneNumber: '',
   image: createDefaultImage(),
   profile: createDefaultUserProfile(),
-  baziProfile: createDefaultProfile(),
   preference: createDefaultPreference(),
 })
 
@@ -165,7 +161,6 @@ export function normalizeUser(item?: Partial<UserModel>): UserModel {
     phoneNumber: item?.phoneNumber ?? '',
     image: normalizeImage(item?.image),
     profile: normalizeUserProfile((item as any)?.profile, { fallbackFullName: item?.name ?? '' }),
-    baziProfile: normalizeProfile((item as any)?.baziProfile),
     preference: normalizePreference((item as any)?.preference),
   }
 }

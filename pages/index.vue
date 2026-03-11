@@ -2,7 +2,7 @@
 <template>
   <div>
     <!-- Hero -->
-    <section class="sb-section py-16 sbq-hero">
+    <section class="sb-section sbq-hero">
       <v-container class="main-container">
         <v-row align="center" class="py-10" dense>
           <v-col cols="12" md="6" class="pr-md-10">
@@ -577,6 +577,9 @@ const faqs = [
 /* Keep CSS minimal; rely on Vuetify classes for everything else */
 
 .sbq-hero {
+  margin-top: -72px;
+  padding-top: 164px;
+  padding-bottom: 72x;
   position: relative;
   overflow: hidden;
 

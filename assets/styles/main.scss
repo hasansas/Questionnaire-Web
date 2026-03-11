@@ -138,9 +138,9 @@ body {
     font-size: var(--text-h5) !important;
   }
 
-  // .text-h6 {
-  //   font-size: var(--text-h6) !important;
-  // }
+  .text-h6 {
+    font-size: var(--text-h6) !important;
+  }
 
   .text-body-1 {
     font-size: var(--text-body-1) !important;
@@ -230,6 +230,17 @@ body {
   }
 }
 
+.page-header {
+  position: relative;
+  overflow: hidden;
+  background-color: #f2f8f5;
+  padding: 72px 0;
+
+  >.v-container {
+    position: relative;
+    z-index: 1;
+  }
+}
 
 .gap-4 {
   gap: 1rem !important;
