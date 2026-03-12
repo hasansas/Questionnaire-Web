@@ -688,7 +688,7 @@ const shareDialog = ref(false);
 const sharePath = ref<string>("");
 const shareUrl = computed(() => {
   if (!sharePath.value) return "";
-  if (process.client)
+  if (import.meta.client)
     return `${window.location.origin}${localePath(sharePath.value)}`;
   return localePath(sharePath.value);
 });
@@ -707,7 +707,7 @@ function notify(text: string) {
 
 /** Actions */
 function scrollTo(selector: string) {
-  if (!process.client) return;
+  if (!import.meta.client) return;
   const el = document.querySelector(selector);
   el?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -722,12 +722,12 @@ async function copyText(text: string) {
 }
 
 function copyOrgLink() {
-  if (!process.client) return;
+  if (!import.meta.client) return;
   copyText(window.location.href);
 }
 
 function requestDemo() {
-  if (!process.client) return;
+  if (!import.meta.client) return;
   window.dispatchEvent(new CustomEvent("sbq:request-demo"));
   notify("Demo request opened");
 }

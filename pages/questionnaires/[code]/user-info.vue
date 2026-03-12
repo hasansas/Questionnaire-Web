@@ -779,7 +779,7 @@ function initForm() {
   }
 
   // load saved snapshot for this code (if any)
-  if (process.client) {
+  if (import.meta.client) {
     try {
       const raw = sessionStorage.getItem(storageKeyUserInfo(code.value));
       if (raw) {
@@ -807,7 +807,7 @@ async function continueNext() {
   }
 
   // Save snapshot (session)
-  if (process.client) {
+  if (import.meta.client) {
     const snapshot: Record<string, any> = {};
     for (const f of orderedFields.value) snapshot[f.key] = formValues[f.key];
     sessionStorage.setItem(

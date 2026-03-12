@@ -735,7 +735,7 @@ function storageKeyUserInfo(codeStr: string) {
 }
 
 function readSessionJson(key: string) {
-  if (!process.client) return null;
+  if (!import.meta.client) return null;
   try {
     const raw = sessionStorage.getItem(key);
     return raw ? JSON.parse(raw) : null;
@@ -751,7 +751,7 @@ function notify(text: string) {
 }
 
 function clearSession() {
-  if (!process.client) return;
+  if (!import.meta.client) return;
   sessionStorage.removeItem(storageKeyAttempt(code.value));
   sessionStorage.removeItem(storageKeyDraft(code.value));
   sessionStorage.removeItem(storageKeyUserInfo(code.value));

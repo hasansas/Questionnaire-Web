@@ -13,6 +13,7 @@ import {
  * Organization Questionnaire Assignment Data Model
  */
 export interface OrganizationQuestionnaireAssignmentModel {
+  id: string | null
   description: string | null
   isActive: boolean
   isPublic: boolean
@@ -38,6 +39,7 @@ export interface OrganizationQuestionnaireModel {
  */
 export const createDefaultOrganizationQuestionnaireAssignment =
   (): OrganizationQuestionnaireAssignmentModel => ({
+    id: null,
     description: null,
     isActive: false,
     isPublic: false,
@@ -66,6 +68,7 @@ export function normalizeOrganizationQuestionnaireAssignment(
   item?: Partial<OrganizationQuestionnaireAssignmentModel>
 ): OrganizationQuestionnaireAssignmentModel {
   return {
+    id: item?.id ?? null,
     description: item?.description ?? null,
     isActive: item?.isActive ?? false,
     isPublic: item?.isPublic ?? false,

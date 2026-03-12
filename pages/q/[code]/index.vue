@@ -713,7 +713,7 @@ function begin() {
 const shareDialog = ref(false);
 const shareUrl = computed(() => {
   const path = localePath(`/q/${code.value}`);
-  if (process.client) return `${window.location.origin}${path}`;
+  if (import.meta.client) return `${window.location.origin}${path}`;
   return path;
 });
 
