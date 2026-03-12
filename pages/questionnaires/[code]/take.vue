@@ -745,7 +745,7 @@ function storageKeyAttempt(codeStr: string) {
 }
 
 function hydrateDraft() {
-  if (!process.client) return;
+  if (!import.meta.client) return;
 
   // Ensure keys exist
   for (const qq of questions.value) {
@@ -771,7 +771,7 @@ function hydrateDraft() {
 }
 
 function persistDraft(reset = false) {
-  if (!process.client) return;
+  if (!import.meta.client) return;
   try {
     const payload = {
       code: code.value,
@@ -812,7 +812,8 @@ async function submit() {
     saveAttemptSnapshot(attempt);
 
     // Clear draft after submission (optional but cleaner)
-    if (process.client) sessionStorage.removeItem(storageKeyDraft(code.value));
+    if (import.meta.client)
+      sessionStorage.removeItem(storageKeyDraft(code.value));
 
     confirmSubmit.value = false;
     notify("Submitted");
@@ -825,7 +826,7 @@ async function submit() {
 }
 
 function saveAttemptSnapshot(attempt: any) {
-  if (!process.client) return;
+  if (!import.meta.client) return;
   sessionStorage.setItem(
     storageKeyAttempt(code.value),
     JSON.stringify(attempt),
@@ -1195,7 +1196,7 @@ function inRange(score: number, min: any, max: any) {
 
 /** Read session JSON */
 function readSessionJson(key: string) {
-  if (!process.client) return null;
+  if (!import.meta.client) return null;
   try {
     const raw = sessionStorage.getItem(key);
     return raw ? JSON.parse(raw) : null;

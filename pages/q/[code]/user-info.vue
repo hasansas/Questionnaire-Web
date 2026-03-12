@@ -280,6 +280,25 @@
                     </v-col>
                   </v-row>
 
+                  <v-alert
+                    v-if="attemptError"
+                    class="mt-8"
+                    type="error"
+                    variant="tonal"
+                    rounded="lg"
+                    border="start"
+                  >
+                    <div class="font-weight-bold mb-1">
+                      Unable to start questionnaire
+                    </div>
+                    <div class="text-body-2">
+                      {{
+                        attemptError ||
+                        "Something went wrong while creating your questionnaire session. Please try again."
+                      }}
+                    </div>
+                  </v-alert>
+
                   <div class="d-flex ga-3 flex-wrap mt-6">
                     <v-btn
                       variant="outlined"
@@ -289,7 +308,12 @@
                       Back
                     </v-btn>
 
-                    <v-btn color="primary" rounded="lg" type="submit">
+                    <v-btn
+                      color="primary"
+                      rounded="lg"
+                      type="submit"
+                      :loading="attemptLoading"
+                    >
                       Continue
                     </v-btn>
                   </div>
@@ -382,8 +406,12 @@ definePageMeta({
 const route = useRoute();
 const localePath = useLocalePath();
 
+const attemptStore = useQuestionnaireAttemptStore();
 const questionnaireStore = useOrganizationQuestionnaireStore();
 const userFieldStore = useOrganizationUserFieldStore();
+
+const { loading: attemptLoading, error: attemptError } =
+  storeToRefs(attemptStore);
 
 const {
   item: questionnaireItem,
@@ -402,6 +430,7 @@ const code = computed(() => String(route.params.code || "").trim());
 const org = computed(() => questionnaireItem.value.organization);
 const q = computed(() => questionnaireItem.value.questionnaire);
 const orgName = computed(() => org.value?.name || "Organization");
+const assignment = computed(() => questionnaireItem.value.assignment);
 
 const activeFields = computed(() =>
   (userFieldItem.value.fields || []).filter((field) => field.isActive),
@@ -540,21 +569,80 @@ async function submit() {
     return;
   }
 
-  const payload = activeFields.value.map((field) => ({
+  const userInfoFields = activeFields.value.map((field) => ({
+    key: field.key,
+    value: String(form[field.key] ?? ""),
+  }));
+
+  const userInfoSnapshot = activeFields.value.map((field) => ({
     fieldId: field.id,
     key: field.key,
     label: field.label,
-    value: form[field.key] ?? "",
+    value: String(form[field.key] ?? ""),
   }));
 
-  if (process.client) {
+  const questionnaireId = String(q.value?.id || "").trim();
+  const organizationId = String(org.value?.id || "").trim();
+  const organizationQuestionnaireId = String(assignment.value?.id || "").trim();
+
+  if (!questionnaireId || !organizationId || !organizationQuestionnaireId) {
+    notify("Questionnaire session data is incomplete.");
+    return;
+  }
+
+  const attempt = await attemptStore.startAttempt({
+    questionnaireId,
+    organizationId,
+    organizationQuestionnaireId,
+    userInfo: {
+      fields: userInfoFields,
+    },
+  });
+
+  if (!attempt?.id) {
+    notify(attemptStore.error || "Failed to start questionnaire.");
+    return;
+  }
+
+  if (import.meta.client) {
     sessionStorage.setItem(
       `q-user-info:${code.value}`,
-      JSON.stringify(payload),
+      JSON.stringify(userInfoSnapshot),
     );
   }
 
-  navigateTo(localePath(`/q/${code.value}/questions`));
+  type QuestionnaireAttemptCookie = {
+    attemptId: string;
+    questionnaireId: string;
+    organizationId: string;
+    organizationQuestionnaireId: string;
+    questionnaireCode: string;
+    startedAt: string | null;
+    status: string;
+  };
+
+  const attemptCookie = useCookie<QuestionnaireAttemptCookie | null>(
+    `q-attempt:${code.value}`,
+    {
+      maxAge: 60 * 60,
+      sameSite: "lax",
+      path: "/",
+    },
+  );
+
+  attemptCookie.value = {
+    attemptId: attempt.id,
+    questionnaireId: attempt.questionnaireId,
+    organizationId: attempt.organizationId,
+    organizationQuestionnaireId: attempt.organizationQuestionnaireId,
+    questionnaireCode: code.value,
+    startedAt: attempt.startedAt
+      ? new Date(attempt.startedAt).toISOString()
+      : null,
+    status: attempt.status,
+  };
+
+  navigateTo(localePath(`/q/${code.value}/take`));
 }
 </script>
 
