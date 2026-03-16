@@ -177,7 +177,6 @@
 <script setup lang="ts">
 import { useRoute } from "vue-router";
 import { useAuthStore } from "~/stores/auth";
-import { useNotification } from "~/composables/useNotification";
 import { getInitials } from "@/utils/formatters";
 
 const authStore = useAuthStore();
@@ -188,8 +187,6 @@ const route = useRoute();
 const darkmode = ref(false);
 const drawer = ref(true);
 const showQuickSetupDialog = ref(true);
-
-useNotification(authStore.auth.id);
 
 // --- Sidebar Navigation Items ---
 const navItems = [
@@ -237,7 +234,9 @@ onMounted(() => {
 
 .nav-link {
   border-radius: 0 1.5rem 1.5rem 0 !important;
-  transition: background 0.2s, border 0.2s;
+  transition:
+    background 0.2s,
+    border 0.2s;
   border-left: 4px solid transparent;
   background: none !important;
 }
