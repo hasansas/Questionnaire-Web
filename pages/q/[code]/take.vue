@@ -43,7 +43,7 @@
             class="text-body-2 text-medium-emphasis mt-2 mx-auto max-width-narrow"
           >
             {{
-              combinedError ||
+              localError ||
               "This questionnaire session could not be opened. Please try again or restart from the questionnaire link."
             }}
           </div>
@@ -172,16 +172,6 @@
                       `Question ${progress.currentQuestionNumber}`
                     }}
                   </div>
-
-                  <!-- <div class="text-body-2 text-medium-emphasis">
-                    {{ question.description || questionHint }}
-                    <span
-                      v-if="question.isRequired"
-                      class="ms-1 font-weight-medium"
-                    >
-                      Required
-                    </span>
-                  </div> -->
                 </div>
               </div>
 
@@ -214,6 +204,7 @@
                   v-if="!progress.isFirstQuestion"
                   rounded="lg"
                   variant="text"
+                  :disabled="isProcessing || submitLoading"
                   @click="goBack"
                 >
                   <v-icon icon="lucide:arrow-left" size="18" class="me-2" />
@@ -223,9 +214,12 @@
                 <v-btn
                   rounded="lg"
                   color="primary"
-                  :loading="saveAnswerLoading"
+                  :loading="saveAnswerLoading || submitLoading || isProcessing"
                   :disabled="
-                    question.isRequired && !String(selectedValue || '').trim()
+                    (question.isRequired &&
+                      !String(selectedValue || '').trim()) ||
+                    isProcessing ||
+                    submitLoading
                   "
                   @click="goNext"
                 >
@@ -338,7 +332,13 @@
       variant="outlined"
     >
       <div class="d-flex align-center justify-space-between ga-3 pa-3">
-        <v-btn rounded="lg" variant="text" @click="goBack">
+        <v-btn
+          v-if="!progress.isFirstQuestion"
+          rounded="lg"
+          variant="text"
+          :disabled="isProcessing || submitLoading"
+          @click="goBack"
+        >
           <v-icon icon="lucide:arrow-left" size="18" class="me-2" />
           {{ progress.isFirstQuestion ? "Back" : "Previous" }}
         </v-btn>
@@ -346,7 +346,12 @@
         <v-btn
           rounded="lg"
           color="primary"
-          :loading="saveAnswerLoading"
+          :loading="saveAnswerLoading || submitLoading || isProcessing"
+          :disabled="
+            (question.isRequired && !String(selectedValue || '').trim()) ||
+            isProcessing ||
+            submitLoading
+          "
           @click="goNext"
         >
           {{ progress.isLastQuestion ? "Finish" : "Next" }}
@@ -354,21 +359,12 @@
         </v-btn>
       </div>
     </v-card>
-
-    <!-- Snack -->
-    <v-snackbar v-model="snack.show" :timeout="2200">
-      {{ snack.text }}
-      <template #actions>
-        <v-btn variant="text" @click="snack.show = false">Close</v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
-import { useQuestionnaireAttemptStore } from "~/stores/questionnaire-attempt";
 
 definePageMeta({
   layout: "empty",
@@ -379,16 +375,9 @@ type UiState = "loading" | "error" | "data" | "empty";
 const route = useRoute();
 const localePath = useLocalePath();
 const attemptStore = useQuestionnaireAttemptStore();
+const snack = useAppSnackbar();
 
-const {
-  item: attempt,
-  currentQuestionSession,
-  questionLoading,
-  questionLoaded,
-  questionError,
-  saveAnswerLoading,
-  saveAnswerError,
-} = storeToRefs(attemptStore);
+const { item: attempt, currentQuestionSession } = storeToRefs(attemptStore);
 
 const code = computed(() => String(route.params.code || "").trim());
 
@@ -407,16 +396,21 @@ const attemptId = computed(() =>
   String(attemptCookie.value?.attemptId || attempt.value?.id || "").trim(),
 );
 
-const combinedError = computed(
-  () => questionError.value || saveAnswerError.value || null,
-);
+const isPageLoading = ref(true);
+const localError = ref<string | null>(null);
+const hasLoadedQuestion = ref(false);
+const saveAnswerLoading = ref(false);
+const submitLoading = ref(false);
+
+const activeQuestionId = ref<string>("");
+const activePrevQuestionId = ref<string>("");
 
 const uiState = computed<UiState>(() => {
-  if (questionLoading.value) return "loading";
-  if (combinedError.value) return "error";
+  if (isPageLoading.value) return "loading";
+  if (localError.value) return "error";
 
   if (
-    !questionLoaded.value ||
+    !hasLoadedQuestion.value ||
     !attemptId.value ||
     !questionnaire.value?.id ||
     !question.value?.id
@@ -429,11 +423,7 @@ const uiState = computed<UiState>(() => {
 
 const selectedValue = ref<string>("");
 const showMissingAnswer = ref(false);
-const snack = ref({ show: false, text: "" });
-
-const questionHint = computed(() => {
-  return String(question.value?.meta?.hint || "Select one answer to continue.");
-});
+const isProcessing = ref(false);
 
 const estimatedMinutes = computed(() => {
   if (
@@ -466,8 +456,33 @@ const scoringLabel = computed(() => {
   }
 });
 
-function notify(text: string) {
-  snack.value = { show: true, text };
+function notifySuccess(text: string) {
+  snack.open(text, { color: "success" });
+}
+
+function notifyError(text: string) {
+  snack.open(text, { color: "error" });
+}
+
+function saveSubmitResultToSession(result: any) {
+  if (!import.meta.client) return;
+
+  sessionStorage.setItem(
+    `q-result:${code.value}`,
+    JSON.stringify({
+      attemptId: attemptId.value,
+      result,
+    }),
+  );
+}
+
+function syncActiveQuestionState(session?: any) {
+  const sessionQuestion = session?.question || question.value;
+
+  activeQuestionId.value = String(sessionQuestion?.id || "").trim();
+  activePrevQuestionId.value = String(
+    sessionQuestion?.prevQuestionId || "",
+  ).trim();
 }
 
 function syncSelectedFromSavedAnswer() {
@@ -512,19 +527,56 @@ function optionValue(opt: any) {
 }
 
 async function loadData() {
-  if (!attemptId.value) return;
-  const session = await attemptStore.getCurrentQuestion(attemptId.value);
-  if (session?.question?.id) {
-    syncSelectedFromSavedAnswer();
+  if (!attemptId.value) {
+    isPageLoading.value = false;
+    hasLoadedQuestion.value = false;
+    localError.value = null;
+    return;
+  }
+
+  isPageLoading.value = true;
+  localError.value = null;
+  hasLoadedQuestion.value = false;
+
+  try {
+    const session = await attemptStore.getCurrentQuestion(attemptId.value);
+
+    if (session?.question?.id) {
+      hasLoadedQuestion.value = true;
+      syncActiveQuestionState(session);
+      syncSelectedFromQuestion(
+        session.question,
+        session.questionnaire?.optionsMode,
+      );
+      showMissingAnswer.value = false;
+    } else {
+      hasLoadedQuestion.value = false;
+    }
+  } catch (err: any) {
+    localError.value =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to load questionnaire session.";
+    hasLoadedQuestion.value = false;
+  } finally {
+    isPageLoading.value = false;
   }
 }
 
 onMounted(loadData);
+
 watch(
   () => question.value?.id,
-  () => {
-    syncSelectedFromSavedAnswer();
-    showMissingAnswer.value = false;
+  (newId) => {
+    if (newId) {
+      activeQuestionId.value = String(newId || "").trim();
+      activePrevQuestionId.value = String(
+        question.value?.prevQuestionId || "",
+      ).trim();
+
+      syncSelectedFromSavedAnswer();
+      showMissingAnswer.value = false;
+    }
   },
 );
 
@@ -545,109 +597,189 @@ useHead(() => ({
 }));
 
 async function saveCurrentAnswer(showSuccess = true) {
-  showMissingAnswer.value = false;
+  const currentQuestionId = activeQuestionId.value;
+  const currentAnswer = String(selectedValue.value || "").trim();
 
-  if (!attemptId.value || !question.value?.id) {
-    notify("Questionnaire session is not available.");
+  if (!attemptId.value || !currentQuestionId) {
+    notifyError("Session expired or invalid.");
     return null;
   }
 
-  if (question.value.isRequired && !String(selectedValue.value || "").trim()) {
-    showMissingAnswer.value = true;
-    notify("Please select an option to continue.");
+  const isFixed = questionnaire.value?.optionsMode === "fixed";
+
+  const payload = {
+    attemptId: attemptId.value,
+    answers: [
+      {
+        questionId: currentQuestionId,
+        [isFixed ? "fixedOptionKey" : "optionId"]: currentAnswer,
+      },
+    ],
+  };
+
+  saveAnswerLoading.value = true;
+  localError.value = null;
+
+  try {
+    const result = await attemptStore.saveAnswer(payload);
+
+    if (!result) {
+      throw new Error("Failed to save answer.");
+    }
+
+    if (result.saved && showSuccess) {
+      notifySuccess("Progress saved");
+    }
+
+    return result;
+  } catch (err: any) {
+    localError.value =
+      err?.response?.data?.message || err?.message || "Failed to save answer.";
     return null;
+  } finally {
+    saveAnswerLoading.value = false;
+  }
+}
+
+async function finishAttempt() {
+  if (!attemptId.value) {
+    notifyError("Questionnaire session is not available.");
+    return false;
   }
 
-  const payload =
-    questionnaire.value?.optionsMode === "fixed"
-      ? {
-          attemptId: attemptId.value,
-          answers: [
-            {
-              questionId: question.value.id,
-              fixedOptionKey: String(selectedValue.value || "").trim(),
-            },
-          ],
-        }
-      : {
-          attemptId: attemptId.value,
-          answers: [
-            {
-              questionId: question.value.id,
-              optionId: String(selectedValue.value || "").trim(),
-            },
-          ],
-        };
+  submitLoading.value = true;
+  localError.value = null;
 
-  const result = await attemptStore.saveAnswer(payload);
+  try {
+    const result = await attemptStore.submitAttempt(attemptId.value);
 
-  if (!result?.saved) {
-    notify(saveAnswerError.value || "Failed to save answer.");
-    return null;
+    if (!result?.id) {
+      throw new Error("Failed to submit attempt.");
+    }
+
+    saveSubmitResultToSession(result);
+    notifySuccess("Questionnaire completed.");
+
+    await navigateTo(localePath(`/q/${code.value}/result`));
+    return true;
+  } catch (err: any) {
+    localError.value =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to submit questionnaire.";
+    notifyError(localError.value || "An error occurred.");
+    return false;
+  } finally {
+    submitLoading.value = false;
   }
-
-  if (showSuccess) {
-    notify("Progress saved");
-  }
-
-  return result;
 }
 
 async function goNext() {
-  const saved = await saveCurrentAnswer(false);
-  if (!saved) return;
+  if (isProcessing.value || submitLoading.value) return;
 
-  const nextQuestionId = String(saved.nextQuestionId || "").trim();
+  if (question.value?.isRequired && !String(selectedValue.value || "").trim()) {
+    showMissingAnswer.value = true;
+    return;
+  }
 
-  if (nextQuestionId) {
-    const session = await attemptStore.getQuestionById(
-      attemptId.value,
-      nextQuestionId,
-    );
+  isProcessing.value = true;
+  showMissingAnswer.value = false;
+  localError.value = null;
 
-    if (!session?.question?.id) {
-      notify(questionError.value || "Failed to load next question.");
+  try {
+    const savedResult = await saveCurrentAnswer(false);
+
+    if (!savedResult || !savedResult.saved) {
+      notifyError(localError.value || "Failed to save answer.");
       return;
     }
 
-    syncSelectedFromQuestion(
-      session.question,
-      session.questionnaire.optionsMode,
-    );
-    return;
-  }
+    const nextId = String(savedResult.nextQuestionId || "").trim();
+    const isComplete = Boolean(savedResult?.progress?.isComplete);
 
-  notify("Questionnaire completed.");
-  navigateTo(localePath(`/q/${code.value}/result`));
+    if (isComplete || !nextId) {
+      await finishAttempt();
+      return;
+    }
+
+    const session = await attemptStore.getQuestionById(attemptId.value, nextId);
+
+    if (session?.question?.id) {
+      hasLoadedQuestion.value = true;
+      syncActiveQuestionState(session);
+      syncSelectedFromQuestion(
+        session.question,
+        session.questionnaire.optionsMode,
+      );
+      showMissingAnswer.value = false;
+
+      if (import.meta.client) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    } else {
+      hasLoadedQuestion.value = false;
+      notifyError("Failed to load next question.");
+    }
+  } catch (err: any) {
+    localError.value =
+      err?.response?.data?.message ||
+      err?.message ||
+      "An error occurred. Please try again.";
+    notifyError(localError.value || "An error occurred.");
+  } finally {
+    isProcessing.value = false;
+    isPageLoading.value = false;
+  }
 }
 
 async function goBack() {
+  if (isProcessing.value || submitLoading.value) return;
+
   showMissingAnswer.value = false;
+  localError.value = null;
 
   if (!attemptId.value) {
-    notify("Questionnaire session is not available.");
+    notifyError("Questionnaire session is not available.");
     return;
   }
 
-  const prevQuestionId = String(question.value?.prevQuestionId || "").trim();
+  const prevQuestionId = activePrevQuestionId.value;
 
   if (!prevQuestionId) {
     navigateTo(localePath(`/q/${code.value}/user-info`));
     return;
   }
 
-  const session = await attemptStore.getQuestionById(
-    attemptId.value,
-    prevQuestionId,
-  );
+  isProcessing.value = true;
+  isPageLoading.value = true;
 
-  if (!session?.question?.id) {
-    notify(questionError.value || "Failed to load previous question.");
-    return;
+  try {
+    const session = await attemptStore.getQuestionById(
+      attemptId.value,
+      prevQuestionId,
+    );
+
+    if (!session?.question?.id) {
+      throw new Error("Failed to load previous question.");
+    }
+
+    hasLoadedQuestion.value = true;
+    syncActiveQuestionState(session);
+    syncSelectedFromQuestion(
+      session.question,
+      session.questionnaire.optionsMode,
+    );
+    showMissingAnswer.value = false;
+  } catch (err: any) {
+    localError.value =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to load previous question.";
+    notifyError(localError.value || "An error occurred.");
+  } finally {
+    isProcessing.value = false;
+    isPageLoading.value = false;
   }
-
-  syncSelectedFromQuestion(session.question, session.questionnaire.optionsMode);
-  showMissingAnswer.value = false;
 }
 
 function restart() {
@@ -659,6 +791,7 @@ function restart() {
 
   if (import.meta.client) {
     sessionStorage.removeItem(`q-user-info:${code.value}`);
+    sessionStorage.removeItem(`q-result:${code.value}`);
   }
 
   navigateTo(localePath(`/q/${code.value}/user-info`));
