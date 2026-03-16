@@ -1,452 +1,352 @@
-<!-- /pages/q/[code]/result.vue -->
 <template>
   <div>
-    <!-- Header -->
-    <section class="result-hero">
+    <section class="step-hero">
       <v-container class="main-container">
         <!-- Loading -->
         <div v-if="uiState === 'loading'">
-          <v-skeleton-loader type="heading, text, text" />
-          <v-row class="mt-6">
-            <v-col cols="12" md="8">
-              <v-card rounded="xl" variant="outlined" class="pa-6">
-                <v-skeleton-loader type="text, text, text, text" />
-              </v-card>
-            </v-col>
-            <v-col cols="12" md="4">
-              <v-card rounded="xl" variant="outlined" class="pa-6">
-                <v-skeleton-loader type="avatar, text, actions" />
-              </v-card>
-            </v-col>
-          </v-row>
+          <v-card rounded="xl" variant="outlined" class="pa-6 pa-md-8">
+            <v-skeleton-loader type="heading, text, text" />
+            <v-row class="mt-4">
+              <v-col cols="12" md="8">
+                <v-skeleton-loader type="image, paragraph, paragraph" />
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-skeleton-loader type="paragraph, paragraph, paragraph" />
+              </v-col>
+            </v-row>
+          </v-card>
         </div>
 
         <!-- Error -->
-        <v-alert
+        <v-card
           v-else-if="uiState === 'error'"
-          type="error"
-          variant="tonal"
           rounded="xl"
+          class="pa-10 pa-md-16 my-10 my-md-16 text-center sb-card"
         >
-          Unable to load result.
-        </v-alert>
+          <v-avatar
+            size="64"
+            color="error"
+            variant="outlined"
+            class="mx-auto mb-4"
+          >
+            <v-icon icon="lucide:alert-circle" size="28" />
+          </v-avatar>
+
+          <div class="text-h6 text-md-h5 font-weight-bold">
+            Unable to load result
+          </div>
+
+          <div
+            class="text-body-2 text-medium-emphasis mt-3 mx-auto max-width-narrow"
+          >
+            {{
+              localError ||
+              "We could not load your questionnaire result. Please try again or restart the questionnaire."
+            }}
+          </div>
+
+          <div class="d-flex justify-center ga-3 flex-wrap mt-6">
+            <v-btn color="primary" rounded="lg" @click="loadResult">
+              Try again
+            </v-btn>
+
+            <v-btn
+              variant="outlined"
+              rounded="lg"
+              :to="localePath(`/q/${code}/user-info`)"
+            >
+              Restart questionnaire
+            </v-btn>
+          </div>
+        </v-card>
 
         <!-- Empty -->
         <v-card
           v-else-if="uiState === 'empty'"
           rounded="xl"
-          variant="outlined"
-          class="pa-8 text-center"
+          class="pa-10 pa-md-16 my-10 my-md-16 text-center sb-card"
         >
           <v-avatar
-            size="56"
+            size="64"
             color="primary"
-            variant="tonal"
-            class="mx-auto mb-3"
+            variant="outlined"
+            class="mx-auto mb-4"
           >
-            <v-icon icon="lucide:alert-circle" />
+            <v-icon icon="lucide:file-search" size="28" />
           </v-avatar>
-          <div class="text-h6 font-weight-bold">Result not available</div>
-          <div
-            class="text-body-2 text-medium-emphasis mt-2 mx-auto max-width-narrow"
-          >
-            We couldn’t find a submitted attempt for this questionnaire in your
-            current browser session. Please start the questionnaire again.
+
+          <div class="text-h6 text-md-h5 font-weight-bold">
+            Result not available yet
           </div>
 
-          <div class="d-flex flex-column flex-sm-row justify-center ga-3 mt-6">
-            <v-btn rounded="xl" color="primary" :to="localePath(`/q/${code}`)">
-              Start again
+          <div
+            class="text-body-2 text-medium-emphasis mt-3 mx-auto max-width-narrow"
+          >
+            Your questionnaire result could not be found. Please complete the
+            questionnaire first or restart the process.
+          </div>
+
+          <div class="d-flex justify-center ga-3 flex-wrap mt-6">
+            <v-btn color="primary" rounded="lg" :to="localePath(`/q/${code}`)">
+              Back to questionnaire
             </v-btn>
+
             <v-btn
-              rounded="xl"
               variant="outlined"
-              :to="localePath('/organizations')"
+              rounded="lg"
+              :to="localePath(`/q/${code}/user-info`)"
             >
-              Browse organizations
+              Restart
             </v-btn>
           </div>
         </v-card>
 
         <!-- Data -->
         <div v-else>
-          <v-breadcrumbs
-            :items="breadcrumbs"
-            class="px-0 mb-3"
-            density="compact"
+          <v-card
+            variant="flat"
+            color="transparent"
+            class="mt-10 mt-md-16 mb-8"
           >
-            <template #divider>
-              <v-icon icon="mdi-chevron-right" />
-            </template>
-          </v-breadcrumbs>
+            <div
+              class="d-flex flex-wrap align-center justify-space-between ga-4"
+            >
+              <div class="min-width-0">
+                <div class="d-flex align-center ga-2 mb-3">
+                  <v-chip color="success" variant="outlined" rounded="lg">
+                    <v-icon icon="lucide:badge-check" size="16" class="me-1" />
+                    Completed
+                  </v-chip>
 
-          <v-row class="align-center">
-            <v-col cols="12" md="8">
-              <div class="d-flex align-center ga-3 mb-3">
-                <v-avatar size="56" color="primary" variant="tonal">
-                  <v-icon
-                    :icon="
-                      showResult ? 'lucide:badge-check' : 'lucide:party-popper'
-                    "
-                  />
-                </v-avatar>
+                  <v-chip variant="outlined" rounded="lg">
+                    {{ scoringTypeLabel }}
+                  </v-chip>
+                </div>
 
-                <div class="min-width-0">
-                  <h1
-                    class="text-h4 text-md-h3 font-weight-bold mb-1 text-truncate"
-                  >
-                    {{ headerTitle }}
-                  </h1>
-                  <div class="text-body-2 text-medium-emphasis">
-                    {{ q!.title }}
-                  </div>
+                <h1 class="text-h4 text-md-h3 font-weight-bold mb-2">
+                  Your Result
+                </h1>
+
+                <div class="text-body-1 text-medium-emphasis">
+                  {{ resultLabelText }}
                 </div>
               </div>
 
-              <p class="text-body-1 text-medium-emphasis mb-0 result-subtitle">
-                {{ headerSubtitle }}
-              </p>
-
-              <div class="d-flex flex-wrap ga-2 mt-5">
-                <v-chip
-                  size="small"
-                  variant="outlined"
-                  class="text-medium-emphasis"
-                >
-                  <v-icon icon="lucide:clock" size="16" class="me-1" />
-                  Submitted {{ submittedTimeLabel }}
-                </v-chip>
-
-                <v-chip
-                  size="small"
-                  variant="outlined"
-                  class="text-medium-emphasis"
-                >
-                  <v-icon icon="lucide:target" size="16" class="me-1" />
-                  {{ scoringLabel }}
-                </v-chip>
-
-                <v-chip
-                  size="small"
-                  :color="showResult ? 'primary' : undefined"
-                  :variant="showResult ? 'tonal' : 'outlined'"
-                  class="text-medium-emphasis"
-                >
-                  <v-icon
-                    :icon="showResult ? 'lucide:eye' : 'lucide:eye-off'"
-                    size="16"
-                    class="me-1"
-                  />
-                  {{ showResult ? "Result shown" : "Result hidden" }}
-                </v-chip>
+              <div class="text-start text-md-end">
+                <div class="text-caption text-medium-emphasis mb-1">
+                  Computed at
+                </div>
+                <div class="text-body-2 font-weight-medium">
+                  {{ formattedComputedAt }}
+                </div>
               </div>
-            </v-col>
-
-            <v-col cols="12" md="4">
-              <v-card
-                rounded="xl"
-                variant="outlined"
-                class="pa-6 result-summary"
-              >
-                <div class="text-subtitle-1 font-weight-bold mb-1">
-                  Next steps
-                </div>
-                <div class="text-body-2 text-medium-emphasis mb-4">
-                  Choose what you want to do next.
-                </div>
-
-                <v-btn
-                  rounded="xl"
-                  color="primary"
-                  block
-                  :to="localePath('/organizations')"
-                >
-                  Take another questionnaire
-                </v-btn>
-
-                <v-btn
-                  rounded="xl"
-                  variant="outlined"
-                  class="mt-3"
-                  block
-                  @click="openSampleReport"
-                >
-                  <v-icon icon="lucide:file-text" size="18" class="me-2" />
-                  View sample report
-                </v-btn>
-
-                <v-btn
-                  rounded="xl"
-                  variant="text"
-                  class="mt-2"
-                  block
-                  :to="localePath(`/q/${code}`)"
-                >
-                  Back to questionnaire
-                </v-btn>
-              </v-card>
-            </v-col>
-          </v-row>
+            </div>
+          </v-card>
         </div>
       </v-container>
     </section>
 
-    <!-- Result content (only if show_result_to_user === true) -->
-    <section v-if="uiState === 'data'">
+    <section v-if="uiState === 'data'" class="pb-10 pb-md-16">
       <v-container class="main-container">
         <v-row>
-          <!-- Left content -->
+          <!-- Main content -->
           <v-col cols="12" md="8">
-            <!-- If results visible -->
-            <template v-if="showResult">
-              <v-card rounded="xl" variant="outlined" class="pa-6 mb-6">
-                <div class="d-flex align-start ga-3">
-                  <v-avatar size="40" color="primary" variant="tonal">
-                    <v-icon icon="lucide:sparkles" />
-                  </v-avatar>
-                  <div class="min-width-0">
-                    <div class="text-subtitle-1 font-weight-bold mb-1">
-                      {{ meaning?.result_label || "Your result" }}
-                    </div>
-                    <div class="text-body-2 text-medium-emphasis">
-                      {{ meaning?.description || defaultMeaningDescription }}
-                    </div>
+            <!-- Summary -->
+            <v-card rounded="xl" variant="outlined" class="pa-6 pa-md-8 mb-6">
+              <div class="d-flex align-start ga-4">
+                <v-avatar size="52" color="primary" variant="outlined">
+                  <v-icon icon="lucide:sparkles" />
+                </v-avatar>
+
+                <div class="min-width-0">
+                  <div class="text-h6 font-weight-bold mb-2">
+                    Interpretation summary
+                  </div>
+                  <div class="text-body-1 text-medium-emphasis leading-relaxed">
+                    {{ result.meaningSnapshot || "No summary available." }}
                   </div>
                 </div>
+              </div>
+            </v-card>
 
-                <v-divider class="my-5" />
-
-                <div class="text-subtitle-2 font-weight-bold mb-3">
-                  Recommendations
-                </div>
-
-                <v-row>
-                  <v-col
-                    v-for="(rec, idx) in recommendations"
-                    :key="idx"
-                    cols="12"
-                    sm="6"
-                  >
-                    <v-card
-                      rounded="xl"
-                      variant="tonal"
-                      color="primary"
-                      class="pa-4 h-100"
-                    >
-                      <div class="d-flex align-start ga-3">
-                        <v-avatar
-                          size="28"
-                          color="primary"
-                          variant="flat"
-                          class="rec-dot"
-                        >
-                          <v-icon icon="lucide:check" size="16" />
-                        </v-avatar>
-                        <div class="text-body-2 font-weight-medium">
-                          {{ rec }}
-                        </div>
-                      </div>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-card>
-
-              <!-- Score summary -->
-              <v-card rounded="xl" variant="outlined" class="pa-6">
-                <div class="d-flex align-center ga-3 mb-4">
-                  <v-avatar size="40" color="primary" variant="tonal">
-                    <v-icon icon="lucide:bar-chart-3" />
-                  </v-avatar>
-                  <div>
-                    <div class="text-subtitle-1 font-weight-bold">
-                      Score summary
-                    </div>
-                    <div class="text-body-2 text-medium-emphasis">
-                      {{ scoringSummaryHint }}
-                    </div>
+            <!-- Scores -->
+            <v-card rounded="xl" variant="outlined" class="pa-6 pa-md-8 mb-6">
+              <div class="d-flex align-center ga-3 mb-5">
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:bar-chart-3" />
+                </v-avatar>
+                <div>
+                  <div class="text-h6 font-weight-bold">Score breakdown</div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    Dimension scores and interpretation bands
                   </div>
                 </div>
+              </div>
 
-                <v-divider class="mb-5" />
-
-                <!-- Total score -->
-                <template v-if="isTotalScore">
-                  <v-row>
-                    <v-col cols="12" sm="6">
-                      <v-card rounded="xl" variant="tonal" class="pa-5">
-                        <div class="text-caption text-medium-emphasis">
-                          Total score
-                        </div>
-                        <div class="text-h4 font-weight-bold mt-1">
-                          {{ attempt!.scoring?.total_score ?? "—" }}
-                        </div>
-                      </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="6">
-                      <v-card rounded="xl" variant="outlined" class="pa-5">
-                        <div class="text-caption text-medium-emphasis">
-                          Band
-                        </div>
-                        <div class="text-h6 font-weight-bold mt-1">
-                          {{ attempt!.scoring?.total_band?.band_level ?? "—" }}
-                        </div>
-                        <div class="text-caption text-medium-emphasis mt-1">
-                          Range: {{ totalBandRange }}
-                        </div>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </template>
-
-                <!-- Multi-dimension -->
-                <template v-else>
-                  <v-alert
-                    type="info"
-                    variant="tonal"
-                    rounded="xl"
-                    class="mb-5"
+              <v-row>
+                <v-col
+                  v-for="item in scoreItems"
+                  :key="item.key"
+                  cols="12"
+                  sm="6"
+                >
+                  <v-card
+                    rounded="lg"
+                    variant="outlined"
+                    class="pa-4 score-card"
                   >
-                    Dominant dimension:
-                    <strong>{{
-                      attempt!.scoring?.dominant_dimension?.name ?? "—"
-                    }}</strong>
-                    ({{ attempt!.scoring?.dominant_dimension?.score ?? "—" }})
-                  </v-alert>
-
-                  <v-row>
-                    <v-col
-                      v-for="item in dimensionItems"
-                      :key="item.key"
-                      cols="12"
-                      sm="6"
-                    >
-                      <v-card rounded="xl" variant="outlined" class="pa-5">
-                        <div class="d-flex align-center justify-space-between">
-                          <div
-                            class="text-subtitle-2 font-weight-bold text-truncate"
-                          >
-                            {{ item.name }}
-                          </div>
-                          <v-chip size="small" variant="tonal" color="primary">
-                            {{ item.band }}
-                          </v-chip>
-                        </div>
-
-                        <div class="text-caption text-medium-emphasis mt-2">
-                          Score
+                    <div class="d-flex justify-space-between align-start ga-4">
+                      <div class="min-width-0">
+                        <div class="text-overline text-medium-emphasis mb-1">
+                          {{ item.label }}
                         </div>
                         <div class="text-h5 font-weight-bold">
                           {{ item.score }}
                         </div>
-                      </v-card>
-                    </v-col>
-                  </v-row>
-                </template>
-              </v-card>
-            </template>
+                      </div>
 
-            <!-- If results hidden -->
-            <template v-else>
-              <v-card rounded="xl" variant="outlined" class="pa-8">
-                <div class="d-flex align-start ga-3">
-                  <v-avatar size="44" color="primary" variant="tonal">
-                    <v-icon icon="lucide:mail-check" />
-                  </v-avatar>
-                  <div>
-                    <div class="text-h6 font-weight-bold mb-1">
-                      Thank you for submitting
+                      <v-chip
+                        size="small"
+                        rounded="lg"
+                        :color="bandColor(item.band)"
+                        variant="flat"
+                      >
+                        {{ formatBand(item.band) }}
+                      </v-chip>
                     </div>
-                    <div class="text-body-2 text-medium-emphasis">
-                      Your submission has been recorded. Results and reporting
-                      are handled by the organization’s workflow.
-                    </div>
+                  </v-card>
+                </v-col>
+              </v-row>
+            </v-card>
+
+            <!-- Recommendations -->
+            <v-card rounded="xl" variant="outlined" class="pa-6 pa-md-8">
+              <div class="d-flex align-center ga-3 mb-5">
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:list-checks" />
+                </v-avatar>
+                <div>
+                  <div class="text-h6 font-weight-bold">Recommendations</div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    Suggested next steps based on your result
                   </div>
                 </div>
+              </div>
 
-                <v-divider class="my-5" />
+              <div
+                v-if="recommendations.length"
+                class="d-flex flex-column ga-3"
+              >
+                <v-card
+                  v-for="(item, index) in recommendations"
+                  :key="`${index}-${item}`"
+                  rounded="lg"
+                  variant="outlined"
+                  class="pa-4"
+                >
+                  <div class="d-flex align-start ga-3">
+                    <v-avatar size="28" color="primary" variant="flat">
+                      <span class="text-caption font-weight-bold">
+                        {{ index + 1 }}
+                      </span>
+                    </v-avatar>
+                    <div class="text-body-2 text-medium-emphasis">
+                      {{ item }}
+                    </div>
+                  </div>
+                </v-card>
+              </div>
 
-                <v-alert type="info" variant="tonal" rounded="xl">
-                  If you need confirmation, please contact the program
-                  coordinator or your organization admin.
-                </v-alert>
-
-                <div class="d-flex flex-column flex-sm-row ga-3 mt-6">
-                  <v-btn
-                    rounded="xl"
-                    color="primary"
-                    :to="localePath('/organizations')"
-                  >
-                    Take another questionnaire
-                  </v-btn>
-                  <v-btn
-                    rounded="xl"
-                    variant="outlined"
-                    @click="openSampleReport"
-                  >
-                    View sample report
-                  </v-btn>
-                </div>
-              </v-card>
-            </template>
+              <v-alert v-else type="info" variant="outlined" rounded="lg">
+                No recommendations are available for this result yet.
+              </v-alert>
+            </v-card>
           </v-col>
 
-          <!-- Right sidebar -->
+          <!-- Sidebar -->
           <v-col cols="12" md="4">
             <v-card rounded="xl" variant="outlined" class="pa-6 mb-6">
               <div class="d-flex align-center ga-3">
-                <v-avatar size="40" color="primary" variant="tonal">
-                  <v-icon icon="lucide:user" />
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:file-text" />
                 </v-avatar>
                 <div>
-                  <div class="text-subtitle-1 font-weight-bold">Respondent</div>
+                  <div class="text-subtitle-1 font-weight-bold">
+                    Result overview
+                  </div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Session snapshot
+                    Snapshot of this questionnaire outcome
                   </div>
                 </div>
               </div>
 
               <v-divider class="my-4" />
 
-              <div class="text-body-2 text-medium-emphasis">
+              <div class="text-body-2">
                 <div
-                  v-for="row in userInfoRows"
-                  :key="row.label"
-                  class="d-flex justify-space-between ga-4 mb-2"
+                  class="d-flex justify-space-between align-center mb-3 ga-3"
                 >
-                  <span class="text-truncate">{{ row.label }}</span>
-                  <span class="font-weight-medium text-truncate text-right">{{
-                    row.value
-                  }}</span>
+                  <span class="text-medium-emphasis">Label</span>
+                  <span class="font-weight-medium text-end">
+                    {{ resultLabelText }}
+                  </span>
+                </div>
+
+                <div
+                  class="d-flex justify-space-between align-center mb-3 ga-3"
+                >
+                  <span class="text-medium-emphasis">Scoring type</span>
+                  <span class="font-weight-medium text-end">
+                    {{ scoringTypeLabel }}
+                  </span>
+                </div>
+
+                <div
+                  class="d-flex justify-space-between align-center mb-3 ga-3"
+                >
+                  <span class="text-medium-emphasis">Dimensions</span>
+                  <span class="font-weight-medium">
+                    {{ scoreItems.length }}
+                  </span>
+                </div>
+
+                <div class="d-flex justify-space-between align-center ga-3">
+                  <span class="text-medium-emphasis">Updated</span>
+                  <span class="font-weight-medium text-end">
+                    {{ formattedUpdatedAt }}
+                  </span>
                 </div>
               </div>
 
               <v-divider class="my-4" />
 
-              <v-btn
-                rounded="xl"
-                variant="outlined"
-                block
-                @click="clearSession"
-              >
-                <v-icon icon="lucide:trash-2" size="18" class="me-2" />
-                Clear session data
-              </v-btn>
+              <div class="d-flex flex-column ga-3">
+                <v-btn
+                  color="primary"
+                  rounded="lg"
+                  block
+                  :to="localePath(`/q/${code}`)"
+                >
+                  View questionnaire
+                </v-btn>
 
-              <div class="text-caption text-medium-emphasis mt-3">
-                Clears draft/user info/result snapshots for this questionnaire
-                in this browser.
+                <v-btn variant="outlined" rounded="lg" block @click="restart">
+                  Retake questionnaire
+                </v-btn>
               </div>
             </v-card>
 
             <v-card rounded="xl" variant="outlined" class="pa-6">
               <div class="d-flex align-center ga-3">
-                <v-avatar size="40" color="primary" variant="tonal">
-                  <v-icon icon="lucide:shield" />
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:shield-check" />
                 </v-avatar>
                 <div>
-                  <div class="text-subtitle-1 font-weight-bold">Privacy</div>
+                  <div class="text-subtitle-1 font-weight-bold">
+                    Session note
+                  </div>
                   <div class="text-body-2 text-medium-emphasis">
-                    Organization data boundary
+                    Result was generated from your saved attempt
                   </div>
                 </div>
               </div>
@@ -454,378 +354,262 @@
               <v-divider class="my-4" />
 
               <div class="text-body-2 text-medium-emphasis">
-                SB Questionnaire stores your attempt snapshot in this browser
-                session for demo purposes. In production, organizations can
-                export and audit results in their dashboards.
+                This page shows the latest computed result for your
+                questionnaire attempt. You can restart the questionnaire if you
+                want to submit a new set of answers.
               </div>
             </v-card>
           </v-col>
         </v-row>
       </v-container>
     </section>
-
-    <!-- Sample Report Dialog (placeholder) -->
-    <v-dialog v-model="sampleDialog" max-width="820">
-      <v-card rounded="xl">
-        <v-card-title class="px-6 pt-6">
-          <div class="d-flex align-center justify-space-between ga-3">
-            <div>
-              <div class="text-h6 font-weight-bold">Sample report</div>
-              <div class="text-body-2 text-medium-emphasis mt-1">
-                Placeholder preview for Phase 1 (download disabled).
-              </div>
-            </div>
-            <v-btn icon variant="text" @click="sampleDialog = false">
-              <v-icon icon="lucide:x" />
-            </v-btn>
-          </div>
-        </v-card-title>
-
-        <v-card-text class="px-6">
-          <v-card rounded="xl" variant="outlined" class="pa-6">
-            <div class="d-flex align-center ga-3 mb-3">
-              <v-avatar size="40" color="primary" variant="tonal">
-                <v-icon icon="lucide:file-text" />
-              </v-avatar>
-              <div>
-                <div class="font-weight-bold">Export-ready PDF report</div>
-                <div class="text-body-2 text-medium-emphasis">
-                  Includes overview, scoring summary, interpretation, and
-                  recommendations.
-                </div>
-              </div>
-            </div>
-
-            <v-skeleton-loader type="image, text, text, text" />
-          </v-card>
-
-          <v-alert type="info" variant="tonal" rounded="xl" class="mt-4">
-            Download is disabled in this mock. Wire it to your real export
-            pipeline later.
-          </v-alert>
-        </v-card-text>
-
-        <v-card-actions class="px-6 pb-6">
-          <v-btn rounded="xl" variant="text" @click="sampleDialog = false"
-            >Close</v-btn
-          >
-          <v-spacer />
-          <v-btn rounded="xl" color="primary" disabled>
-            <v-icon icon="lucide:download" size="18" class="me-2" />
-            Download (disabled)
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <v-snackbar v-model="snack.show" :timeout="2200">
-      {{ snack.text }}
-      <template #actions>
-        <v-btn variant="text" @click="snack.show = false">Close</v-btn>
-      </template>
-    </v-snackbar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
-import * as mock from "~/utils/mockPublicData";
+import { storeToRefs } from "pinia";
+import { useQuestionnaireAttemptStore } from "~/stores/questionnaire-attempt";
+import {
+  createDefaultQuestionnaireAttemptResult,
+  type QuestionnaireAttemptResultModel,
+} from "~/models/questionnaire-attempt-result.model";
+
+definePageMeta({
+  layout: "empty",
+});
 
 type UiState = "loading" | "error" | "data" | "empty";
-type AnyQuestionnaire = Record<string, any>;
 
 const route = useRoute();
 const localePath = useLocalePath();
+const attemptStore = useQuestionnaireAttemptStore();
+const snack = useAppSnackbar();
 
-const code = computed(() => String(route.params.code || ""));
+const { item: attempt, resultItem } = storeToRefs(attemptStore);
 
-useHead(() => ({
-  title: `Result — ${code.value} | SB Questionnaire`,
-  meta: [
-    {
-      name: "description",
-      content:
-        "View questionnaire result (if enabled) or see submission confirmation on SB Questionnaire.",
-    },
-  ],
-}));
+const code = computed(() => String(route.params.code || "").trim());
 
-/** Mock access (defensive) */
-const questionnairesRaw = computed<AnyQuestionnaire[]>(() => {
-  const qs = (mock as any).questionnaires;
-  return Array.isArray(qs) ? qs : [];
+const attemptCookie = useCookie<any>(`q-attempt:${code.value}`, {
+  sameSite: "lax",
+  path: "/",
 });
 
-/** UI state */
-const uiState = ref<UiState>("loading");
-const q = ref<AnyQuestionnaire | null>(null);
-const attempt = ref<any | null>(null);
-
-onMounted(() => {
-  load();
-});
-
-function load() {
-  uiState.value = "loading";
-  q.value = null;
-  attempt.value = null;
-
-  window.setTimeout(() => {
-    try {
-      const found = questionnairesRaw.value.find(
-        (it) => String(it.code) === code.value,
-      );
-      const published =
-        found && String(found.status || "").toLowerCase() === "published";
-      q.value = published ? found : null;
-
-      if (!q.value) {
-        uiState.value = "empty";
-        return;
-      }
-
-      // attempt snapshot is stored by take.vue
-      const raw = readSessionJson(storageKeyAttempt(code.value));
-      attempt.value = raw;
-
-      if (!attempt.value) {
-        uiState.value = "empty";
-        return;
-      }
-
-      uiState.value = "data";
-    } catch {
-      uiState.value = "error";
-    }
-  }, 260);
-}
-
-/** Breadcrumbs */
-const breadcrumbs = computed(() => [
-  { title: "Home", to: localePath("/") },
-  { title: "Questionnaire", to: localePath(`/q/${code.value}`) },
-  { title: "Result", disabled: true },
-]);
-
-/** Show result? */
-const showResult = computed(() => Boolean(q.value?.show_result_to_user));
-
-const isTotalScore = computed(
-  () =>
-    String(attempt.value?.scoring_type || q.value?.scoring_type || "") ===
-    "total_score",
+const attemptId = computed(() =>
+  String(attemptCookie.value?.attemptId || attempt.value?.id || "").trim(),
 );
 
-const scoringLabel = computed(() =>
-  isTotalScore.value ? "Total score" : "Multi-dimension scoring",
+const localResult = ref<QuestionnaireAttemptResultModel>(
+  createDefaultQuestionnaireAttemptResult(),
+);
+const isPageLoading = ref(true);
+const localError = ref<string | null>(null);
+const hasLoaded = ref(false);
+
+const result = computed(() => localResult.value);
+
+const uiState = computed<UiState>(() => {
+  if (isPageLoading.value) return "loading";
+  if (localError.value) return "error";
+  if (!hasLoaded.value || !result.value?.id) return "empty";
+  return "data";
+});
+
+const recommendations = computed(() =>
+  Array.isArray(result.value?.recommendationsSnapshot)
+    ? result.value.recommendationsSnapshot.filter((item) =>
+        String(item || "").trim(),
+      )
+    : [],
 );
 
-const submittedTimeLabel = computed(() => {
-  const iso = String(
-    attempt.value?.submitted_at ?? attempt.value?.submittedAt ?? "",
-  );
-  if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  return d.toLocaleString();
-});
+const scoreItems = computed(() => {
+  const scores = result.value?.scoresJson || {};
+  const bands = result.value?.bandsJson || {};
 
-/** Header */
-const headerTitle = computed(() =>
-  showResult.value ? "Your result" : "Submission received",
-);
-const headerSubtitle = computed(() =>
-  showResult.value
-    ? "Here is your outcome summary and recommendations based on your responses."
-    : "Thank you. Your responses have been recorded and will be processed by the organization.",
-);
-
-/** Meaning */
-const meaning = computed(() => attempt.value?.scoring?.meaning ?? null);
-const defaultMeaningDescription =
-  "Your responses have been scored automatically. This outcome is generated using the organization’s scoring and interpretation rules.";
-
-const recommendations = computed<string[]>(() => {
-  const recs = meaning.value?.recommendations;
-  if (Array.isArray(recs) && recs.length) return recs;
-  // fallback
-  return [
-    "Review the summary and note the key outcome label.",
-    "Share your result with your coordinator if required.",
-    "Use the recommendations as a checklist for next steps.",
-    "Retake the questionnaire later if your situation changes.",
-  ];
-});
-
-/** Score summary helpers */
-const scoringSummaryHint = computed(() => {
-  return isTotalScore.value
-    ? "Your total score is mapped into a band for interpretation."
-    : "Scores are summed per dimension to identify a dominant area and band levels.";
-});
-
-const totalBandRange = computed(() => {
-  const band = attempt.value?.scoring?.total_band;
-  const min = band?.min_score;
-  const max = band?.max_score;
-  if (min == null && max == null) return "—";
-  if (min != null && max != null) return `${min}–${max}`;
-  if (min != null) return `≥ ${min}`;
-  return `≤ ${max}`;
-});
-
-const dimensionItems = computed(() => {
-  const bands = attempt.value?.scoring?.dimension_bands || {};
-  return Object.values(bands).map((b: any) => ({
-    key: String(b.key ?? ""),
-    name: String(b.dimension_name ?? b.name ?? b.key ?? "Dimension"),
-    score: Number(b.score ?? 0),
-    band: String(b.band_level ?? "—"),
+  return Object.keys(scores).map((key) => ({
+    key,
+    label: formatKeyLabel(key),
+    score: Number(scores[key] || 0),
+    band: String(bands[key] || "").trim(),
   }));
 });
 
-/** User info snapshot */
-const userInfoRows = computed(() => {
-  const info = attempt.value?.user_info || {};
-  const entries = Object.entries(info).filter(
-    ([_, v]) => v != null && String(v).trim() !== "",
-  );
-  const rows = entries.slice(0, 8).map(([k, v]) => ({
-    label: keyToLabel(k),
-    value: String(v),
-  }));
+const resultLabelText = computed(() =>
+  String(result.value?.resultLabel || "Result available").trim(),
+);
 
-  // fallback if empty
-  if (!rows.length) {
-    return [
-      { label: "Session", value: "Anonymous" },
-      { label: "Stored", value: "In this browser" },
-    ];
+const scoringTypeLabel = computed(() => {
+  switch (result.value?.scoringTypeSnapshot) {
+    case "multi_dimension":
+      return "Multi-dimension";
+    case "banded":
+      return "Band-based";
+    default:
+      return "Total score";
   }
-  return rows;
 });
 
-function keyToLabel(key: string): string {
-  return key
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
+const formattedComputedAt = computed(() =>
+  formatDateTime(result.value?.computedAt),
+);
+
+const formattedUpdatedAt = computed(() =>
+  formatDateTime(result.value?.updatedAt),
+);
+
+function notifyError(text: string) {
+  snack.open(text, { color: "error" });
+}
+
+function formatKeyLabel(value: string) {
+  const text = String(value || "").trim();
+  if (!text) return "-";
+
+  return text
     .replace(/[_-]+/g, " ")
-    .replace(/\s+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function formatBand(value: string) {
+  const text = String(value || "").trim();
+  if (!text) return "-";
+
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function bandColor(value: string) {
+  const band = String(value || "")
     .trim()
-    .replace(
-      /\w\S*/g,
-      (w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(),
-    );
+    .toLowerCase();
+
+  if (band === "high") return "success";
+  if (band === "medium") return "warning";
+  if (band === "low") return "error";
+
+  return "primary";
 }
 
-/** Dialogs */
-const sampleDialog = ref(false);
-function openSampleReport() {
-  sampleDialog.value = true;
-}
+function formatDateTime(value?: string) {
+  const text = String(value || "").trim();
+  if (!text) return "-";
 
-/** Session storage keys */
-function storageKeyAttempt(codeStr: string) {
-  return `sbq:attempt:${codeStr}`;
-}
-function storageKeyDraft(codeStr: string) {
-  return `sbq:draft:${codeStr}`;
-}
-function storageKeyUserInfo(codeStr: string) {
-  return `sbq:user_info:${codeStr}`;
-}
-
-function readSessionJson(key: string) {
-  if (!import.meta.client) return null;
   try {
-    const raw = sessionStorage.getItem(key);
-    return raw ? JSON.parse(raw) : null;
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    }).format(new Date(text));
+  } catch {
+    return text;
+  }
+}
+
+function readResultFromSession(): QuestionnaireAttemptResultModel | null {
+  if (!import.meta.client) return null;
+
+  try {
+    const raw = sessionStorage.getItem(`q-result:${code.value}`);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+    if (!parsed?.result?.id) return null;
+
+    return parsed.result as QuestionnaireAttemptResultModel;
   } catch {
     return null;
   }
 }
 
-/** Clear session */
-const snack = ref({ show: false, text: "" });
-function notify(text: string) {
-  snack.value = { show: true, text };
+async function loadResult() {
+  isPageLoading.value = true;
+  localError.value = null;
+  hasLoaded.value = false;
+
+  try {
+    const cached = readResultFromSession();
+
+    if (cached?.id) {
+      localResult.value = cached;
+      hasLoaded.value = true;
+      isPageLoading.value = false;
+      return;
+    }
+
+    if (!attemptId.value) {
+      localResult.value = createDefaultQuestionnaireAttemptResult();
+      hasLoaded.value = false;
+      isPageLoading.value = false;
+      return;
+    }
+
+    const response = await attemptStore.getAttemptResult(attemptId.value);
+
+    if (!response?.id) {
+      localResult.value = createDefaultQuestionnaireAttemptResult();
+      hasLoaded.value = false;
+      return;
+    }
+
+    localResult.value = response;
+    hasLoaded.value = true;
+  } catch (err: any) {
+    localError.value =
+      err?.response?.data?.message ||
+      err?.message ||
+      "Failed to load questionnaire result.";
+    notifyError(localError.value ?? "Failed to load questionnaire result.");
+    hasLoaded.value = false;
+  } finally {
+    isPageLoading.value = false;
+  }
 }
 
-function clearSession() {
-  if (!import.meta.client) return;
-  sessionStorage.removeItem(storageKeyAttempt(code.value));
-  sessionStorage.removeItem(storageKeyDraft(code.value));
-  sessionStorage.removeItem(storageKeyUserInfo(code.value));
-  notify("Session data cleared");
-  // refresh local state
-  attempt.value = null;
-  uiState.value = "empty";
+function restart() {
+  const cookie = useCookie(`q-attempt:${code.value}`, {
+    sameSite: "lax",
+    path: "/",
+  });
+  cookie.value = null;
+
+  attemptStore.resetState();
+
+  if (import.meta.client) {
+    sessionStorage.removeItem(`q-user-info:${code.value}`);
+    sessionStorage.removeItem(`q-result:${code.value}`);
+  }
+
+  navigateTo(localePath(`/q/${code.value}/user-info`));
 }
+
+useHead(() => ({
+  title:
+    uiState.value === "data"
+      ? `${resultLabelText.value} | Questionnaire Result`
+      : `Questionnaire Result — ${code.value}`,
+  meta: [
+    {
+      name: "description",
+      content:
+        uiState.value === "data"
+          ? `View your questionnaire result for ${code.value}.`
+          : "View your questionnaire result.",
+    },
+  ],
+}));
+
+onMounted(loadResult);
 </script>
 
-<style lang="scss" scoped>
-.result-hero {
-  position: relative;
-  overflow: hidden;
-  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -2px;
-    background:
-      radial-gradient(
-        980px 560px at 14% 20%,
-        rgba(var(--v-theme-primary), 0.18),
-        transparent 56%
-      ),
-      radial-gradient(
-        760px 520px at 84% 18%,
-        rgba(var(--v-theme-primary), 0.1),
-        transparent 62%
-      ),
-      linear-gradient(
-        180deg,
-        rgba(var(--v-theme-surface), 0.72),
-        rgba(var(--v-theme-surface), 1)
-      );
-    pointer-events: none;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-    background-size: 18px 18px;
-    opacity: 0.1;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-  }
-
-  > .v-container {
-    position: relative;
-    z-index: 1;
-  }
-}
-
-.result-summary {
-  backdrop-filter: blur(10px);
-  background-color: rgba(var(--v-theme-surface), 0.85);
-}
-
-.result-subtitle {
-  max-width: 78ch;
-}
-
+<style scoped>
 .max-width-narrow {
-  max-width: 720px;
+  max-width: 560px;
 }
 
-.min-width-0 {
-  min-width: 0;
+.leading-relaxed {
+  line-height: 1.75;
 }
 
-.rec-dot {
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+.score-card {
+  min-height: 110px;
 }
 </style>
