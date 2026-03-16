@@ -188,7 +188,7 @@
                   v-for="item in scoreItems"
                   :key="item.key"
                   cols="12"
-                  sm="6"
+                  sm="4"
                 >
                   <v-card
                     rounded="lg"

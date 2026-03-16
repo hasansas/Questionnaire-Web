@@ -20,6 +20,31 @@ import {
   type QuestionnaireAttemptResultModel,
 } from '~/models/questionnaire-attempt-result.model'
 
+export interface QuestionnaireAttemptUserInfoFieldModel {
+  key: string
+  value: string
+}
+
+export interface StartQuestionnaireAttemptPayload {
+  questionnaireId: string
+  organizationId: string
+  organizationQuestionnaireId: string
+  userInfo: {
+    fields: QuestionnaireAttemptUserInfoFieldModel[]
+  }
+}
+
+export interface SaveAttemptAnswerItemPayload {
+  questionId: string
+  optionId?: string | null
+  fixedOptionKey?: string | null
+}
+
+export interface SaveAttemptAnswerPayload {
+  attemptId: string
+  answers: SaveAttemptAnswerItemPayload[]
+}
+
 export const useQuestionnaireAttemptStore = defineStore(
   'questionnaireAttempt',
   () => {
