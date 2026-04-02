@@ -19,8 +19,8 @@
       <v-card
         flat
         :width="isMobile ? '100%' : '400'"
-        class="pa-8 superbazi-card"
-        :rounded="isMobile ? 't-xl b-0' : ''"
+        class="pa-8 sb-card"
+        rounded="xl"
       >
         <div class="d-flex flex-column align-center mb-8">
           <NuxtLink v-if="!isMobile" to="/" class="brand-logo mt-4 mb-8">
@@ -111,7 +111,7 @@
           </v-btn>
         </v-form>
 
-        <div class="text-center text-caption text-medium-emphasis">
+        <!-- <div class="text-center text-caption text-medium-emphasis">
           Don't have an account?
           <NuxtLink
             to="/auth/register"
@@ -119,7 +119,7 @@
           >
             Sign up
           </NuxtLink>
-        </div>
+        </div> -->
       </v-card>
     </v-main>
   </v-app>
@@ -181,7 +181,7 @@ async function handleLogin() {
     return;
   }
 
-  await navigateTo("/dashboard");
+  await navigateTo("/org");
 }
 </script>
 
