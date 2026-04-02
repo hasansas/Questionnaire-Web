@@ -2,14 +2,8 @@
   <div class="d-flex flex-column h-100 pa-3">
     <div class="d-flex align-center ga-3 px-2 py-2">
       <div :class="rail ? 'mx-2' : ''">
-        <v-avatar :size="rail ? 26 : 34" color="#0cad43">
-          <v-avatar :size="rail ? 24 : 32">
-            <img
-              src="/images/SB Questionnaire-icon.png"
-              alt="SB Questionnaire icon"
-              height="100%"
-            />
-          </v-avatar>
+        <v-avatar size="26" class="mr-2">
+          <v-icon icon="lucide:clipboard-check" color="primary" size="24" />
         </v-avatar>
       </div>
 

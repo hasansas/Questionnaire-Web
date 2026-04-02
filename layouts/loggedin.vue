@@ -1,278 +1,206 @@
 <template>
   <v-app>
-    <v-card
-      v-if="!hydrated"
-      flat
-      height="100vh"
-      class="d-flex align-center justify-center"
-    >
-      <div class="superbazi-loader"></div>
-    </v-card>
-    <template v-else>
-      <v-card
-        v-if="!user"
-        flat
-        height="100vh"
-        class="d-flex align-center justify-center"
+    <v-layout class="h-100">
+      <!-- Sidebar / Drawer -->
+      <v-navigation-drawer
+        v-model="drawer"
+        :rail="rail"
+        :permanent="mdAndUp"
+        :temporary="!mdAndUp"
+        width="280"
+        rail-width="84"
+        class="sb-drawer"
       >
-        <div class="superbazi-loader"></div>
-      </v-card>
-      <template v-else>
-        <QuickSetup
-          v-if="!user.preference.preferencesCompleted"
-          v-model="showQuickSetupDialog"
+        <OrgSidebar
+          :rail="rail"
+          :active-path="route.path"
+          @toggle-rail="toggleRail"
         />
-        <div v-if="!user.preference.preferencesCompleted">QuickSetup</div>
-        <template v-else>
-          <ClientOnly>
-            <v-navigation-drawer elevation="0" v-model="drawer" app permanent>
-              <!-- Brand Header -->
-              <div
-                class="superbazi-brand text-h6 font-weight-black ml-4 text-primary pa-4"
-              >
-                <img
-                  src="/images/superbazi-logo-text.png"
-                  alt="SuperBazi"
-                  height="24"
-                />
+      </v-navigation-drawer>
+
+      <!-- Main -->
+      <v-main>
+        <!-- Top Bar -->
+        <v-app-bar flat height="64" class="sb-appbar" density="comfortable">
+          <div class="d-flex align-center w-100 px-4 ga-2">
+            <!-- Mobile drawer toggle -->
+            <v-btn
+              v-if="!mdAndUp"
+              icon
+              variant="text"
+              @click="drawer = !drawer"
+            >
+              <v-icon icon="lucide:menu" />
+            </v-btn>
+
+            <!-- Rail toggle (desktop) -->
+            <v-btn v-else icon variant="text" @click="toggleRail">
+              <v-icon
+                :icon="
+                  rail ? 'lucide:panel-left-open' : 'lucide:panel-left-close'
+                "
+              />
+            </v-btn>
+
+            <v-divider vertical class="mx-1" />
+
+            <div class="min-w-0">
+              <div class="text-subtitle-2 font-weight-bold text-truncate">
+                Org Console
               </div>
+              <div class="text-caption text-medium-emphasis text-truncate">
+                {{ pageSubtitle }}
+              </div>
+            </div>
 
-              <!-- Main Menu -->
-              <v-list density="compact" class="pr-4">
-                <v-list-subheader class="text-overline mx-4">
-                  Main Menu
-                </v-list-subheader>
-                <v-list-item
-                  v-for="item in navItems"
-                  :key="item.title"
-                  :to="item.to"
-                  :active="route.path === item.to"
-                  class="nav-link pl-6 pr-4 my-2"
-                  active-class="nav-link--active"
-                >
-                  <template #prepend>
-                    <v-avatar size="20" class="rounded-0">
-                      <v-icon
-                        :icon="item.icon"
-                        size="20"
-                        :color="route.path === item.to ? 'primary' : ''"
-                      />
+            <v-spacer />
+
+            <!-- Right actions -->
+            <div class="d-flex align-center ga-2">
+              <v-btn
+                icon
+                variant="text"
+                @click="notify('Notifications (UI only)')"
+              >
+                <v-icon icon="lucide:bell" />
+              </v-btn>
+
+              <v-menu location="bottom end" offset="10">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    variant="text"
+                    class="px-2"
+                    rounded="lg"
+                  >
+                    <v-avatar
+                      size="28"
+                      color="primary"
+                      variant="tonal"
+                      class="me-2"
+                    >
+                      <v-icon icon="lucide:user" size="16" />
                     </v-avatar>
-                  </template>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
+                    <span
+                      class="text-body-2 font-weight-medium d-none d-sm-inline"
+                    >
+                      Org Viewer
+                    </span>
+                    <v-icon icon="lucide:chevron-down" class="ms-2" size="18" />
+                  </v-btn>
+                </template>
 
-              <!-- Other Menu -->
-              <!-- <v-list density="compact" class="pr-4">
-                <v-list-subheader class="text-overline mx-4">
-                  Other
-                </v-list-subheader>
-                <v-list-item
-                  v-for="item in otherItems"
-                  :key="item.title"
-                  :to="item.to"
-                  :active="route.path === item.to"
-                  class="nav-link pl-6 pr-4 my-2"
-                  active-class="nav-link--active"
-                >
-                  <template #prepend>
-                    <v-avatar size="20" class="rounded-0">
-                      <v-icon :icon="item.icon" size="20" />
-                    </v-avatar>
-                  </template>
-                  <v-list-item-title>{{ item.title }}</v-list-item-title>
-                </v-list-item>
-              </v-list> -->
-
-              <!-- User Menu -->
-              <template #append>
-                <v-divider class="ma-0" />
-                <v-menu
-                  :close-on-content-click="false"
-                  :offset="[0, 0]"
-                  location="end"
-                >
-                  <template #activator="{ props }">
-                    <v-card v-bind="props" class="rounded-0 hover-card">
-                      <v-list-item
-                        :title="user?.name || ''"
-                        :subtitle="user?.email || ''"
-                        class="pa-4"
+                <v-card rounded="xl" variant="outlined" class="sb-menu">
+                  <v-list density="comfortable" class="py-1">
+                    <v-list-item to="/org/profile">
+                      <template #prepend>
+                        <v-icon icon="lucide:building-2" class="me-2" />
+                      </template>
+                      <v-list-item-title
+                        >Organization Profile</v-list-item-title
                       >
-                        <template v-slot:prepend>
-                          <v-avatar size="40" color="primary">
-                            <span class="text-white">
-                              {{ getInitials(user?.name || "") }}
-                            </span>
-                          </v-avatar>
-                        </template>
-                      </v-list-item>
-                    </v-card>
-                  </template>
+                    </v-list-item>
 
-                  <v-card min-width="280">
-                    <v-list>
-                      <!-- <v-list-item>
-                        <template #prepend>
-                          <v-avatar size="16">
-                            <v-icon icon="ri-contrast-line" size="16" />
-                          </v-avatar>
-                        </template>
-                        <v-list-item-title>Dark mode</v-list-item-title>
-                        <template #append>
-                          <v-switch
-                            v-model="darkmode"
-                            @change="toggleDarkMode"
-                            color="primary"
-                            hide-details
-                          />
-                        </template>
-                      </v-list-item>
+                    <v-list-item to="/org/settings">
+                      <template #prepend>
+                        <v-icon icon="lucide:settings" class="me-2" />
+                      </template>
+                      <v-list-item-title>Settings</v-list-item-title>
+                    </v-list-item>
 
-                      <v-divider />
+                    <v-divider class="my-2" />
 
-                      <v-list-item>
-                        <template #prepend>
-                          <v-avatar size="16">
-                            <v-icon icon="ri-user-3-line" size="16" />
-                          </v-avatar>
-                        </template>
-                        <v-list-item-title>Your profile</v-list-item-title>
-                      </v-list-item>
+                    <v-list-item @click="handleLogout">
+                      <template #prepend>
+                        <v-icon icon="lucide:log-out" class="me-2" />
+                      </template>
+                      <v-list-item-title>Sign out</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-card>
+              </v-menu>
+            </div>
+          </div>
+        </v-app-bar>
 
-                      <v-list-item>
-                        <template #prepend>
-                          <v-avatar size="16">
-                            <v-icon icon="ri-wallet-line" size="16" />
-                          </v-avatar>
-                        </template>
-                        <v-list-item-title>Billing</v-list-item-title>
-                      </v-list-item> -->
+        <!-- Page content -->
+        <div class="sb-content">
+          <slot />
+        </div>
 
-                      <v-list-item @click="handleLogout">
-                        <template #prepend>
-                          <v-avatar size="16">
-                            <v-icon icon="ri-logout-circle-line" size="16" />
-                          </v-avatar>
-                        </template>
-                        <v-list-item-title>Logout</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-card>
-                </v-menu>
-              </template>
-            </v-navigation-drawer>
-          </ClientOnly>
-
-          <v-main>
-            <slot />
-          </v-main>
-        </template>
-      </template>
-    </template>
+        <v-snackbar v-model="snack.open" timeout="1400" location="bottom">
+          {{ snack.text }}
+        </v-snackbar>
+      </v-main>
+    </v-layout>
   </v-app>
 </template>
 
 <script setup lang="ts">
+import { computed, ref, watch } from "vue";
+import { useDisplay } from "vuetify";
 import { useRoute } from "vue-router";
-import { useAuthStore } from "~/stores/auth";
-import { getInitials } from "@/utils/formatters";
+import OrgSidebar from "~/components/org/OrgSidebar.vue";
+
+const route = useRoute();
+const { mdAndUp } = useDisplay();
 
 const authStore = useAuthStore();
 const userStore = useUsersStore();
-const user = computed(() => userStore.user);
-const hydrated = ref(false);
-const route = useRoute();
-const darkmode = ref(false);
 const drawer = ref(true);
-const showQuickSetupDialog = ref(true);
+const rail = ref(false);
 
-// --- Sidebar Navigation Items ---
-const navItems = [
-  { title: "Dashboard", icon: "lucide:layout-dashboard", to: "/dashboard" },
-  { title: "Report", icon: "lucide:file-text", to: "/dashboard/report" },
-  { title: "Profiles", icon: "lucide:user-circle", to: "/dashboard/profiles" },
-  // {
-  //   title: "Calendars",
-  //   icon: "lucide:calendar-days",
-  //   to: "/dashboard/calendars",
-  // },
-  {
-    title: "Consultation",
-    icon: "lucide:messages-square",
-    to: "/dashboard/consultation",
+watch(
+  () => mdAndUp.value,
+  (isDesktop) => {
+    // Default: drawer open on desktop, closed on mobile
+    drawer.value = isDesktop;
+    // Keep rail mode only meaningful on desktop
+    if (!isDesktop) rail.value = false;
   },
-  { title: "Academy", icon: "lucide:graduation-cap", to: "/dashboard/academy" },
-  { title: "Community", icon: "lucide:users", to: "/dashboard/community" },
-  { title: "R&D", icon: "lucide:flask-round", to: "/dashboard/rnd" },
-];
+  { immediate: true },
+);
 
-const otherItems = [
-  { title: "Settings", icon: "lucide:settings", to: "/dashboard/settings" },
-  { title: "Knowledge", icon: "lucide:book-open", to: "/dashboard/knowledge" },
-  { title: "Help Center", icon: "lucide:help-circle", to: "/dashboard/help" },
-];
+function toggleRail() {
+  // Only allow rail toggle on desktop
+  if (!mdAndUp.value) return;
+  rail.value = !rail.value;
+}
 
-function toggleDarkMode() {
-  document.documentElement.classList.toggle("dark", darkmode.value);
+const pageSubtitle = computed(() => {
+  const p = route.path;
+  if (p.startsWith("/org/reports")) return "Reports";
+  if (p.startsWith("/org/questionnaires")) return "Questionnaires";
+  if (p.startsWith("/org/users")) return "Users";
+  if (p.startsWith("/org/profile")) return "Organization Profile";
+  if (p.startsWith("/org/settings")) return "Settings";
+  return "Dashboard";
+});
+
+const snack = ref({ open: false, text: "" });
+function notify(text: string) {
+  snack.value = { open: true, text };
 }
 
 function handleLogout() {
   authStore.logout();
 }
-
-onMounted(() => {
-  hydrated.value = true;
-});
 </script>
 
 <style lang="scss" scoped>
-.superbazi-brand {
-  letter-spacing: -0.01em;
+.sb-drawer {
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-.nav-link {
-  border-radius: 0 1.5rem 1.5rem 0 !important;
-  transition:
-    background 0.2s,
-    border 0.2s;
-  border-left: 4px solid transparent;
-  background: none !important;
+.sb-appbar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
-:deep(.v-list-item__overlay) {
-  background: transparent !important;
-  box-shadow: none !important;
+.sb-content {
+  min-height: calc(100vh - 64px);
 }
 
-.nav-link:hover,
-.nav-link--active {
-  background: var(--color-primary-soften) !important;
-  color: var(--color-primary) !important;
-  position: relative;
-
-  .v-icon {
-    color: var(--color-primary) !important;
-  }
-}
-
-/* Border left indicator for active */
-.nav-link--active::before {
-  position: absolute;
-  content: "";
-  bottom: 0;
-  left: 0;
-  width: 2px;
-  height: 100%;
-  background: var(--color-primary) !important;
-  z-index: 10;
-}
-
-.user-card {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
+.sb-menu {
+  min-width: 220px;
 }
 </style>

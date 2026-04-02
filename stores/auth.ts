@@ -86,7 +86,7 @@ export const useAuthStore = defineStore('auth', () => {
     const identifier = payload.identifier
     const password = stringHex.toHex(payload.password)
 
-    const res: ApiResult<LoginResponse> = await api.post('/v1/auth/login/regular', {
+    const res: ApiResult<LoginResponse> = await api.post('/v1/auth/login/org', {
       identifier,
       password,
     })
