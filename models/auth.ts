@@ -5,6 +5,7 @@
 export interface AuthModel {
   id: string
   role: string
+  organizationId: string | null
   token: string
   refreshToken: string
   isLoggedIn: boolean
@@ -16,6 +17,7 @@ export interface AuthModel {
 export const createDefaultAuth = (): AuthModel => ({
   id: '',
   role: '',
+  organizationId: null,
   token: '',
   refreshToken: '',
   isLoggedIn: false,
@@ -28,6 +30,7 @@ export function normalizeAuth(item?: Partial<AuthModel>): AuthModel {
   return {
     id: item?.id ?? '',
     role: item?.role ?? '',
+    organizationId: item?.organizationId ?? null,
     token: item?.token ?? '',
     refreshToken: item?.refreshToken ?? '',
     isLoggedIn: item?.isLoggedIn ?? false,

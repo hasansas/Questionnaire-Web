@@ -93,7 +93,7 @@
         <!-- Right CTA -->
         <v-spacer />
 
-        <v-btn variant="text" density="comfortable" class="text-body-2">
+        <v-btn variant="text" density="comfortable" class="text-body-2" to="/auth/login">
           Log in
         </v-btn>
         <v-btn color="primary" variant="flat" rounded="lg" class="text-none">

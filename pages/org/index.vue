@@ -31,14 +31,23 @@
     <!-- Loading -->
     <div v-if="uiState === 'loading'">
       <v-row>
-        <v-col cols="12" md="3" v-for="n in 4" :key="n">
+        <v-col cols="12" sm="6" md="4" lg v-for="n in 5" :key="n">
           <v-skeleton-loader type="card" class="rounded-xl" />
         </v-col>
       </v-row>
 
-      <v-card class="mt-6" rounded="xl" variant="outlined">
+      <v-row class="mt-2">
+        <v-col cols="12" md="8">
+          <v-skeleton-loader type="card" height="240" class="rounded-xl" />
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-skeleton-loader type="card" height="240" class="rounded-xl" />
+        </v-col>
+      </v-row>
+
+      <v-card class="mt-4" rounded="xl" variant="outlined">
         <v-card-title class="d-flex align-center justify-space-between">
-          <div class="text-subtitle-1 font-weight-bold">Recent Reports</div>
+          <v-skeleton-loader type="heading" width="180" />
         </v-card-title>
         <v-divider />
         <v-card-text>
@@ -100,81 +109,110 @@
 
     <!-- Data -->
     <div v-else>
+      <!-- KPI Cards -->
       <v-row>
-        <v-col cols="12" md="3">
-          <v-card rounded="xl" variant="outlined" class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis">
-                  Published Questionnaires
-                </div>
-                <div class="text-h5 font-weight-black mt-1">
-                  {{ kpis.publishedQuestionnaires }}
-                </div>
-              </div>
-              <v-avatar color="primary" variant="tonal">
-                <v-icon icon="lucide:clipboard-list" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-card rounded="xl" variant="outlined" class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis">
-                  Submitted Reports
-                </div>
-                <div class="text-h5 font-weight-black mt-1">
-                  {{ kpis.totalReports }}
-                </div>
-              </div>
-              <v-avatar color="primary" variant="tonal">
-                <v-icon icon="lucide:file-text" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-card rounded="xl" variant="outlined" class="pa-4">
-            <div class="d-flex align-center justify-space-between">
-              <div>
-                <div class="text-caption text-medium-emphasis">Last 7 Days</div>
-                <div class="text-h5 font-weight-black mt-1">
-                  {{ kpis.last7Days }}
-                </div>
-              </div>
-              <v-avatar color="primary" variant="tonal">
-                <v-icon icon="lucide:calendar-days" />
-              </v-avatar>
-            </div>
-          </v-card>
-        </v-col>
-
-        <v-col cols="12" md="3">
-          <v-card rounded="xl" variant="outlined" class="pa-4">
-            <div class="d-flex align-center justify-space-between">
+        <v-col
+          v-for="kpi in kpiCards"
+          :key="kpi.label"
+          cols="12"
+          sm="6"
+          md="4"
+          lg
+        >
+          <v-card rounded="xl" variant="outlined" class="pa-4 h-100">
+            <div class="d-flex align-center justify-space-between ga-3">
               <div class="min-w-0">
                 <div class="text-caption text-medium-emphasis">
-                  Most Common Result
+                  {{ kpi.label }}
                 </div>
-                <div
-                  class="text-subtitle-1 font-weight-black mt-1 text-truncate"
-                >
-                  {{ kpis.mostCommonResultLabel ?? "—" }}
+                <div class="text-h5 font-weight-black mt-1">
+                  {{ kpi.value }}
                 </div>
               </div>
-              <v-avatar color="primary" variant="tonal">
-                <v-icon icon="lucide:sparkles" />
+              <v-avatar :color="kpi.color" variant="tonal" size="40">
+                <v-icon :icon="kpi.icon" />
               </v-avatar>
             </div>
           </v-card>
         </v-col>
       </v-row>
 
-      <v-card class="mt-6" rounded="xl" variant="outlined">
+      <!-- Charts -->
+      <v-row class="mt-2">
+        <!-- Submissions Trend -->
+        <v-col cols="12" md="8">
+          <v-card rounded="xl" variant="outlined" class="pa-4">
+            <div class="text-subtitle-1 font-weight-bold mb-1">
+              Submissions Trend
+            </div>
+            <div class="text-caption text-medium-emphasis mb-3">
+              Daily submission count over time
+            </div>
+            <div
+              v-if="stats.submissions_trend.length === 0"
+              class="text-body-2 text-medium-emphasis py-10 text-center"
+            >
+              No trend data available yet.
+            </div>
+            <ClientOnly v-else>
+              <apexchart
+                type="area"
+                height="180"
+                :options="trendOptions"
+                :series="trendSeries"
+              />
+            </ClientOnly>
+          </v-card>
+        </v-col>
+
+        <!-- Result Distribution -->
+        <v-col cols="12" md="4">
+          <v-card rounded="xl" variant="outlined" class="pa-4 h-100">
+            <div class="text-subtitle-1 font-weight-bold mb-1">
+              Result Distribution
+            </div>
+            <div class="text-caption text-medium-emphasis mb-4">
+              Breakdown by result label
+            </div>
+            <div
+              v-if="stats.result_distribution.length === 0"
+              class="text-body-2 text-medium-emphasis py-10 text-center"
+            >
+              No distribution data yet.
+            </div>
+            <div v-else class="d-flex flex-column ga-4">
+              <div
+                v-for="item in stats.result_distribution"
+                :key="item.label"
+              >
+                <div
+                  class="d-flex align-center justify-space-between ga-2 mb-1"
+                >
+                  <span
+                    class="text-caption text-truncate"
+                    style="max-width: 80%"
+                  >
+                    {{ item.label }}
+                  </span>
+                  <span class="text-caption font-weight-bold text-no-wrap">
+                    {{ item.count }}
+                  </span>
+                </div>
+                <v-progress-linear
+                  :model-value="(item.count / totalDistribution) * 100"
+                  color="primary"
+                  rounded
+                  height="6"
+                  bg-color="surface-variant"
+                />
+              </div>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <!-- Recent Attempts -->
+      <v-card class="mt-4" rounded="xl" variant="outlined">
         <v-card-title
           class="d-flex align-center justify-space-between ga-3 flex-wrap"
         >
@@ -184,7 +222,6 @@
               Latest submitted attempts
             </div>
           </div>
-
           <v-btn
             rounded="lg"
             variant="text"
@@ -198,11 +235,22 @@
 
         <v-data-table
           :headers="recentHeaders"
-          :items="recentRows"
+          :items="stats.recent_attempts"
           item-key="id"
           density="comfortable"
           class="sb-table"
         >
+          <template #item.user="{ item }">
+            <div>
+              <div class="text-body-2 font-weight-medium">
+                {{ item.user.name }}
+              </div>
+              <div class="text-caption text-medium-emphasis">
+                {{ item.user.email }}
+              </div>
+            </div>
+          </template>
+
           <template #item.submitted_at="{ item }">
             <div class="text-body-2">
               {{ formatDateTime(item.submitted_at) }}
@@ -210,9 +258,15 @@
           </template>
 
           <template #item.result_label="{ item }">
-            <v-chip size="small" variant="tonal" color="primary">
+            <v-chip
+              v-if="item.result_label"
+              size="small"
+              variant="tonal"
+              color="primary"
+            >
               {{ item.result_label }}
             </v-chip>
+            <span v-else class="text-medium-emphasis">—</span>
           </template>
 
           <template #item.actions="{ item }">
@@ -241,35 +295,45 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
 import { useHead } from "#imports";
+import { useAuthStore } from "~/stores/auth";
 
 type UiState = "loading" | "error" | "empty" | "ready";
 
-type Questionnaire = {
-  id: string;
-  code: string;
-  title: string;
-  description: string;
-  language: string;
-  status: "published" | "archived" | "draft";
-  version: number;
-  scoring_type: "multi_dimension" | "total_score";
-  show_result_to_user: boolean;
-  created_at: string;
-  updated_at: string;
-};
+interface RecentAttemptUser {
+  name: string;
+  email: string;
+}
 
-type AttemptRow = {
+interface RecentAttempt {
   id: string;
-  questionnaire_id: string;
   questionnaire_code: string;
   questionnaire_title: string;
   questionnaire_version: number;
-  organization_id: string;
-  status: "submitted" | "started";
-  started_at: string;
-  submitted_at: string | null;
-  result_label: string | null;
-};
+  submitted_at: string;
+  result_label: string;
+  user: RecentAttemptUser;
+}
+
+interface ResultDistributionItem {
+  label: string;
+  count: number;
+}
+
+interface SubmissionsTrendItem {
+  date: string;
+  count: number;
+}
+
+interface DashboardStats {
+  published_questionnaires: number;
+  total_reports: number;
+  last_7_days: number;
+  in_progress: number;
+  total_members: number;
+  submissions_trend: SubmissionsTrendItem[];
+  result_distribution: ResultDistributionItem[];
+  recent_attempts: RecentAttempt[];
+}
 
 useHead({
   title: "Org Dashboard • Questionnaire App",
@@ -281,97 +345,108 @@ useHead({
   ],
 });
 
+const api = useApiService();
+const authStore = useAuthStore();
+
 const uiState = ref<UiState>("loading");
 const errorMessage = ref("");
 
-const currentOrgId = "org_089b8bc2";
+const stats = ref<DashboardStats>({
+  published_questionnaires: 0,
+  total_reports: 0,
+  last_7_days: 0,
+  in_progress: 0,
+  total_members: 0,
+  submissions_trend: [],
+  result_distribution: [],
+  recent_attempts: [],
+});
 
-const questionnaires: Questionnaire[] = [
+const kpiCards = computed(() => [
   {
-    id: "q_01",
-    code: "stress-check",
-    title: "Stress Check (7 mins)",
-    description: "A quick assessment to understand your current stress level.",
-    language: "en",
-    status: "published",
-    version: 1,
-    scoring_type: "total_score",
-    show_result_to_user: true,
-    created_at: "2026-01-02T09:00:00Z",
-    updated_at: "2026-01-05T09:00:00Z",
+    label: "Published Questionnaires",
+    value: stats.value.published_questionnaires,
+    icon: "lucide:clipboard-list",
+    color: "primary",
   },
   {
-    id: "q_02",
-    code: "energy-balance",
-    title: "Energy Balance (10 mins)",
-    description: "Explore energy distribution across key dimensions.",
-    language: "en",
-    status: "published",
-    version: 2,
-    scoring_type: "multi_dimension",
-    show_result_to_user: true,
-    created_at: "2026-01-03T09:00:00Z",
-    updated_at: "2026-01-12T09:00:00Z",
+    label: "Submitted Reports",
+    value: stats.value.total_reports,
+    icon: "lucide:file-text",
+    color: "primary",
   },
   {
-    id: "q_03",
-    code: "sleep-quality",
-    title: "Sleep Quality (5 mins)",
-    description: "A short questionnaire about sleep patterns and habits.",
-    language: "id",
-    status: "archived",
-    version: 1,
-    scoring_type: "total_score",
-    show_result_to_user: false,
-    created_at: "2026-01-03T09:00:00Z",
-    updated_at: "2026-01-11T09:00:00Z",
+    label: "Last 7 Days",
+    value: stats.value.last_7_days,
+    icon: "lucide:calendar-days",
+    color: "primary",
   },
+  {
+    label: "In Progress",
+    value: stats.value.in_progress,
+    icon: "lucide:loader",
+    color: "warning",
+  },
+  {
+    label: "Total Members",
+    value: stats.value.total_members,
+    icon: "lucide:users",
+    color: "primary",
+  },
+]);
+
+const totalDistribution = computed(() =>
+  stats.value.result_distribution.reduce((sum, d) => sum + d.count, 0) || 1,
+);
+
+const trendSeries = computed(() => [
+  {
+    name: "Submissions",
+    data: stats.value.submissions_trend.map((t) => t.count),
+  },
+]);
+
+const trendOptions = computed(() => ({
+  chart: {
+    type: "area",
+    toolbar: { show: false },
+    zoom: { enabled: false },
+  },
+  dataLabels: { enabled: false },
+  stroke: { curve: "smooth", width: 2 },
+  fill: {
+    type: "gradient",
+    gradient: { opacityFrom: 0.2, opacityTo: 0 },
+  },
+  xaxis: {
+    categories: stats.value.submissions_trend.map((t) => t.date),
+    labels: {
+      rotate: -30,
+      style: { fontSize: "11px" },
+    },
+  },
+  yaxis: {
+    min: 0,
+    labels: { style: { fontSize: "11px" } },
+    tickAmount: 4,
+  },
+  colors: ["#6366f1"],
+  grid: { borderColor: "#e5e7eb" },
+  tooltip: { x: { format: "yyyy-MM-dd" } },
+}));
+
+const recentHeaders = [
+  { title: "User", key: "user", sortable: false },
+  { title: "Submitted", key: "submitted_at", sortable: false },
+  { title: "Questionnaire", key: "questionnaire_title", sortable: false },
+  { title: "Result", key: "result_label", sortable: false },
+  { title: "", key: "actions", sortable: false, align: "end" as const },
 ];
 
-const attempts: AttemptRow[] = [
-  {
-    id: "att_1001",
-    questionnaire_id: "q_01",
-    questionnaire_code: "stress-check",
-    questionnaire_title: "Stress Check (7 mins)",
-    questionnaire_version: 1,
-    organization_id: currentOrgId,
-    status: "submitted",
-    started_at: "2026-01-12T02:10:00Z",
-    submitted_at: "2026-01-12T02:17:00Z",
-    result_label: "Moderate Stress",
-  },
-  {
-    id: "att_1002",
-    questionnaire_id: "q_02",
-    questionnaire_code: "energy-balance",
-    questionnaire_title: "Energy Balance (10 mins)",
-    questionnaire_version: 2,
-    organization_id: currentOrgId,
-    status: "submitted",
-    started_at: "2026-01-15T06:10:00Z",
-    submitted_at: "2026-01-15T06:25:00Z",
-    result_label: "Earth Dominant",
-  },
-  {
-    id: "att_1003",
-    questionnaire_id: "q_02",
-    questionnaire_code: "energy-balance",
-    questionnaire_title: "Energy Balance (10 mins)",
-    questionnaire_version: 2,
-    organization_id: currentOrgId,
-    status: "submitted",
-    started_at: "2026-01-18T10:00:00Z",
-    submitted_at: "2026-01-18T10:12:00Z",
-    result_label: "Metal Dominant",
-  },
-];
-
-function formatDateTime(iso: string | null) {
+function formatDateTime(iso: string | null): string {
   if (!iso) return "—";
   try {
-    const d = new Date(iso);
-    return d.toLocaleString(undefined, {
+    return new Date(iso).toLocaleString(undefined, {
       year: "numeric",
       month: "short",
       day: "2-digit",
@@ -383,67 +458,30 @@ function formatDateTime(iso: string | null) {
   }
 }
 
-const publishedQuestionnaires = computed(() =>
-  questionnaires.filter((q) => q.status === "published"),
-);
-
-const submittedAttempts = computed(() =>
-  attempts
-    .filter(
-      (a) =>
-        a.organization_id === currentOrgId &&
-        a.status === "submitted" &&
-        a.submitted_at,
-    )
-    .sort((a, b) => (b.submitted_at ?? "").localeCompare(a.submitted_at ?? "")),
-);
-
-const last7DaysCount = computed(() => {
-  const now = new Date();
-  const since = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  return submittedAttempts.value.filter(
-    (a) => a.submitted_at && new Date(a.submitted_at) >= since,
-  ).length;
-});
-
-const mostCommonResultLabel = computed(() => {
-  const freq = new Map<string, number>();
-  for (const a of submittedAttempts.value) {
-    if (!a.result_label) continue;
-    freq.set(a.result_label, (freq.get(a.result_label) ?? 0) + 1);
-  }
-  let best: { label: string; count: number } | null = null;
-  for (const [label, count] of freq.entries()) {
-    if (!best || count > best.count) best = { label, count };
-  }
-  return best?.label ?? null;
-});
-
-const kpis = computed(() => ({
-  publishedQuestionnaires: publishedQuestionnaires.value.length,
-  totalReports: submittedAttempts.value.length,
-  last7Days: last7DaysCount.value,
-  mostCommonResultLabel: mostCommonResultLabel.value,
-}));
-
-const recentHeaders = [
-  { title: "Submitted", key: "submitted_at", sortable: false },
-  { title: "Questionnaire", key: "questionnaire_title", sortable: false },
-  { title: "Result", key: "result_label", sortable: false },
-  { title: "", key: "actions", sortable: false, align: "end" as const },
-];
-
-const recentRows = computed(() => submittedAttempts.value.slice(0, 10));
-
-async function load() {
+async function load(): Promise<void> {
   uiState.value = "loading";
   errorMessage.value = "";
+
   try {
-    await new Promise((r) => setTimeout(r, 450));
-    const hasAny =
-      publishedQuestionnaires.value.length > 0 ||
-      submittedAttempts.value.length > 0;
-    uiState.value = hasAny ? "ready" : "empty";
+    const orgId = authStore.auth.organizationId;
+    const res: ApiResult<DashboardStats> = await api.get(
+      `/v1/organizations/${orgId}/stats/dashboard`,
+    );
+
+    if (!res.success) {
+      throw new Error(
+        (res.error as any)?.message || "Failed to load dashboard.",
+      );
+    }
+
+    stats.value = res.data;
+
+    const hasData =
+      res.data.published_questionnaires > 0 ||
+      res.data.total_reports > 0 ||
+      res.data.total_members > 0;
+
+    uiState.value = hasData ? "ready" : "empty";
   } catch (e: any) {
     uiState.value = "error";
     errorMessage.value = e?.message || "Failed to load dashboard.";

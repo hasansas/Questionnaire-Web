@@ -1,14 +1,16 @@
 <template>
   <v-container class="pa-6">
+    <!-- Page Header -->
     <div class="d-flex align-center justify-space-between ga-3 flex-wrap mb-6">
       <div class="min-w-0">
         <h1 class="text-h5 font-weight-black ma-0">Report Detail</h1>
         <div class="text-body-2 text-medium-emphasis mt-1">
-          {{
-            reportMeta
-              ? `${reportMeta.questionnaire_title} • ${reportMeta.id}`
-              : "—"
-          }}
+          <span v-if="reportMeta">
+            {{ reportMeta.questionnaire_title }} &bull; v{{
+              reportMeta.questionnaire_version
+            }}
+          </span>
+          <span v-else>—</span>
         </div>
       </div>
 
@@ -22,7 +24,7 @@
           Back
         </v-btn>
 
-        <v-menu>
+        <v-menu v-if="uiState === 'ready'" location="bottom end" offset="8">
           <template #activator="{ props }">
             <v-btn
               v-bind="props"
@@ -33,18 +35,17 @@
               Export
             </v-btn>
           </template>
-
-          <v-card rounded="xl" variant="outlined" class="pa-2">
+          <v-card rounded="xl" variant="outlined" class="pa-1">
             <v-list density="comfortable" class="pa-0">
-              <v-list-item @click="toast('Export PDF (UI only)')">
+              <v-list-item rounded="lg" @click="handleExport('pdf')">
                 <template #prepend>
-                  <v-icon icon="lucide:file" class="me-2" />
+                  <v-icon icon="lucide:file" size="18" class="me-2" />
                 </template>
                 <v-list-item-title>Export PDF</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="toast('Export JSON (UI only)')">
+              <v-list-item rounded="lg" @click="handleExport('json')">
                 <template #prepend>
-                  <v-icon icon="lucide:braces" class="me-2" />
+                  <v-icon icon="lucide:braces" size="18" class="me-2" />
                 </template>
                 <v-list-item-title>Export JSON</v-list-item-title>
               </v-list-item>
@@ -54,12 +55,20 @@
       </div>
     </div>
 
+    <!-- Loading -->
     <div v-if="uiState === 'loading'">
-      <v-skeleton-loader type="card" class="rounded-xl" />
-      <v-skeleton-loader type="card" class="rounded-xl mt-6" />
-      <v-skeleton-loader type="card" class="rounded-xl mt-6" />
+      <v-skeleton-loader type="card" class="rounded-xl mb-4" />
+      <v-row>
+        <v-col cols="12" md="4">
+          <v-skeleton-loader type="card" class="rounded-xl" />
+        </v-col>
+        <v-col cols="12" md="8">
+          <v-skeleton-loader type="card" class="rounded-xl" />
+        </v-col>
+      </v-row>
     </div>
 
+    <!-- Error -->
     <div v-else-if="uiState === 'error'">
       <v-alert type="error" variant="tonal" rounded="lg" class="mb-4">
         {{ errorMessage }}
@@ -74,251 +83,462 @@
       </v-btn>
     </div>
 
-    <div v-else-if="uiState === 'empty' || !reportMeta || !result">
+    <!-- Not found -->
+    <div v-else-if="uiState === 'empty'">
       <v-card rounded="xl" variant="outlined" class="pa-6">
         <div class="d-flex align-center ga-3">
-          <v-avatar color="primary" variant="tonal" size="40">
-            <v-icon icon="lucide:inbox" />
+          <v-avatar color="warning" variant="tonal" size="40">
+            <v-icon icon="lucide:search-x" />
           </v-avatar>
           <div>
             <div class="text-subtitle-1 font-weight-bold">Report not found</div>
             <div class="text-body-2 text-medium-emphasis">
-              The report ID
-              <span class="font-weight-medium">{{ id }}</span> does not exist.
+              No report found for ID
+              <span class="font-weight-medium">{{ id }}</span
+              >.
             </div>
           </div>
         </div>
       </v-card>
     </div>
 
-    <div v-else>
-      <v-row>
-        <v-col cols="12" md="5">
-          <v-card rounded="xl" variant="outlined">
-            <v-card-title
-              class="d-flex align-center justify-space-between ga-3 flex-wrap"
-            >
-              <div class="min-w-0">
-                <div class="text-subtitle-1 font-weight-bold">Attempt</div>
-                <div class="text-caption text-medium-emphasis">
-                  Submitted:
-                  {{
-                    reportMeta.submitted_at
-                      ? formatDateTime(reportMeta.submitted_at)
-                      : "—"
-                  }}
+    <!-- Ready -->
+    <div v-else-if="uiState === 'ready' && reportMeta">
+      <!-- Attempt summary -->
+      <v-card rounded="xl" variant="outlined" class="pa-5 mb-4">
+        <!-- Header row -->
+        <div class="d-flex align-start flex-wrap ga-3">
+          <div class="min-w-0">
+            <div class="text-subtitle-1 font-weight-black">
+              {{ reportMeta.questionnaire_title }}
+            </div>
+            <div class="text-body-2 text-medium-emphasis mt-1">
+              {{ reportMeta.questionnaire_code }}
+            </div>
+          </div>
+
+          <v-chip
+            variant="tonal"
+            class="px-3"
+            :color="reportMeta.status === 'submitted' ? 'primary' : 'warning'"
+          >
+            <v-icon
+              :icon="
+                reportMeta.status === 'submitted'
+                  ? 'lucide:badge-check'
+                  : 'lucide:clock'
+              "
+              size="16"
+              class="me-1"
+            />
+            {{
+              reportMeta.status === "submitted" ? "Submitted" : "In Progress"
+            }}
+          </v-chip>
+
+          <v-spacer />
+
+          <v-chip variant="tonal" class="px-3">
+            <v-icon icon="lucide:tag" size="16" class="me-1" />
+            v{{ reportMeta.questionnaire_version }}
+          </v-chip>
+        </div>
+
+        <v-divider class="my-4" />
+
+        <!-- Stat cards -->
+        <v-row>
+          <v-col cols="12" sm="6" md="3">
+            <v-card rounded="xl" variant="outlined" class="pa-4 h-100">
+              <div class="d-flex align-center justify-space-between">
+                <div class="min-w-0">
+                  <div class="text-caption text-medium-emphasis">Code</div>
+                  <div class="text-subtitle-2 font-weight-black mt-1">
+                    {{ reportMeta.questionnaire_code }}
+                  </div>
                 </div>
-              </div>
-              <v-chip size="small" variant="tonal" color="primary">{{
-                reportMeta.status
-              }}</v-chip>
-            </v-card-title>
-            <v-divider />
-            <v-card-text class="pa-5">
-              <v-list density="comfortable" class="pa-0">
-                <v-list-item class="px-0">
-                  <v-list-item-title class="text-caption text-medium-emphasis"
-                    >Questionnaire</v-list-item-title
-                  >
-                  <template #append>
-                    <div class="text-body-2 font-weight-medium">
-                      {{ reportMeta.questionnaire_title }}
-                    </div>
-                  </template>
-                </v-list-item>
-
-                <v-divider class="my-2" />
-
-                <v-list-item class="px-0">
-                  <v-list-item-title class="text-caption text-medium-emphasis"
-                    >Version</v-list-item-title
-                  >
-                  <template #append>
-                    <div class="text-body-2 font-weight-medium">
-                      v{{ reportMeta.questionnaire_version }}
-                    </div>
-                  </template>
-                </v-list-item>
-
-                <v-divider class="my-2" />
-
-                <v-list-item class="px-0">
-                  <v-list-item-title class="text-caption text-medium-emphasis"
-                    >Started</v-list-item-title
-                  >
-                  <template #append>
-                    <div class="text-body-2 font-weight-medium">
-                      {{ formatDateTime(reportMeta.started_at) }}
-                    </div>
-                  </template>
-                </v-list-item>
-
-                <v-divider class="my-2" />
-
-                <v-list-item class="px-0">
-                  <v-list-item-title class="text-caption text-medium-emphasis"
-                    >Computed</v-list-item-title
-                  >
-                  <template #append>
-                    <div class="text-body-2 font-weight-medium">
-                      {{ formatDateTime(result.computed_at) }}
-                    </div>
-                  </template>
-                </v-list-item>
-              </v-list>
-            </v-card-text>
-          </v-card>
-
-          <v-card rounded="xl" variant="outlined" class="mt-6">
-            <v-card-title
-              class="d-flex align-center justify-space-between ga-3 flex-wrap"
-            >
-              <div class="min-w-0">
-                <div class="text-subtitle-1 font-weight-bold">User Info</div>
-                <div class="text-caption text-medium-emphasis">
-                  Snapshot captured at submission
-                </div>
-              </div>
-            </v-card-title>
-            <v-divider />
-            <v-card-text class="pa-5">
-              <v-row>
-                <v-col
-                  cols="12"
-                  md="6"
-                  v-for="(val, key) in result.user_info_snapshot"
-                  :key="key"
+                <v-avatar
+                  size="40"
+                  rounded="lg"
+                  color="primary"
+                  variant="tonal"
                 >
-                  <div
-                    class="text-caption text-medium-emphasis text-capitalize"
-                  >
-                    {{ prettyKey(key) }}
+                  <v-icon icon="lucide:hash" size="18" />
+                </v-avatar>
+              </div>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" sm="6" md="3">
+            <v-card rounded="xl" variant="outlined" class="pa-4 h-100">
+              <div class="d-flex align-center justify-space-between">
+                <div class="min-w-0">
+                  <div class="text-caption text-medium-emphasis">Version</div>
+                  <div class="text-h6 font-weight-black mt-1">
+                    v{{ reportMeta.questionnaire_version }}
                   </div>
-                  <div class="text-body-2 font-weight-medium mt-1">
-                    {{ String(val) }}
+                </div>
+                <v-avatar size="40" rounded="lg" color="info" variant="tonal">
+                  <v-icon icon="lucide:tag" size="18" />
+                </v-avatar>
+              </div>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" sm="6" md="3">
+            <v-card rounded="xl" variant="outlined" class="pa-4 h-100">
+              <div class="d-flex align-center justify-space-between">
+                <div class="min-w-0">
+                  <div class="text-caption text-medium-emphasis">Started</div>
+                  <div class="text-subtitle-2 font-weight-black mt-1">
+                    {{ formatDateTime(reportMeta.started_at) }}
                   </div>
-                </v-col>
-              </v-row>
+                </div>
+                <v-avatar
+                  size="40"
+                  rounded="lg"
+                  color="success"
+                  variant="tonal"
+                >
+                  <v-icon icon="lucide:play-circle" size="18" />
+                </v-avatar>
+              </div>
+            </v-card>
+          </v-col>
+
+          <v-col cols="12" sm="6" md="3">
+            <v-card rounded="xl" variant="outlined" class="pa-4 h-100">
+              <div class="d-flex align-center justify-space-between">
+                <div class="min-w-0">
+                  <div class="text-caption text-medium-emphasis">Submitted</div>
+                  <div class="text-subtitle-2 font-weight-black mt-1">
+                    {{
+                      reportMeta.submitted_at
+                        ? formatDateTime(reportMeta.submitted_at)
+                        : "—"
+                    }}
+                  </div>
+                </div>
+                <v-avatar
+                  size="40"
+                  rounded="lg"
+                  color="warning"
+                  variant="tonal"
+                >
+                  <v-icon icon="lucide:send" size="18" />
+                </v-avatar>
+              </div>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-card>
+
+      <!-- In progress — no result yet -->
+      <v-card v-if="!result" rounded="xl" variant="outlined">
+        <v-card-text class="pa-6">
+          <div class="d-flex align-center ga-3">
+            <v-avatar color="warning" variant="tonal" size="40">
+              <v-icon icon="lucide:clock" />
+            </v-avatar>
+            <div>
+              <div class="text-subtitle-1 font-weight-bold">In Progress</div>
+              <div class="text-body-2 text-medium-emphasis">
+                This attempt has not been submitted yet. Results will appear
+                once the respondent completes the questionnaire.
+              </div>
+            </div>
+          </div>
+        </v-card-text>
+      </v-card>
+
+      <!-- Result summary -->
+      <v-row v-else>
+        <!-- Left column: meta + user info -->
+        <v-col cols="12" md="4">
+          <!-- User info snapshot (only when result exists) -->
+          <v-card
+            v-if="result && Object.keys(result.user_info_snapshot).length"
+            rounded="xl"
+            variant="outlined"
+          >
+            <v-card-text class="pa-5">
+              <div class="d-flex align-center ga-3 mb-4">
+                <v-avatar size="44" rounded="lg" color="primary" variant="tonal">
+                  <v-icon icon="lucide:user" size="20" />
+                </v-avatar>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold">Respondent Info</div>
+                  <div class="text-body-2 text-medium-emphasis">Snapshot at submission</div>
+                </div>
+              </div>
+
+              <div
+                v-for="(val, key) in result.user_info_snapshot"
+                :key="key"
+                class="mb-3"
+              >
+                <div
+                  class="text-caption text-medium-emphasis text-capitalize mb-1"
+                >
+                  {{ prettyKey(String(key)) }}
+                </div>
+                <div class="text-body-2 font-weight-medium">
+                  {{ String(val) }}
+                </div>
+              </div>
             </v-card-text>
           </v-card>
         </v-col>
 
-        <v-col cols="12" md="7">
+        <!-- Right column: meta + user info -->
+        <v-col cols="12" md="8">
           <v-card rounded="xl" variant="outlined">
-            <v-card-title
-              class="d-flex align-center justify-space-between ga-3 flex-wrap"
-            >
-              <div class="min-w-0">
-                <div class="text-subtitle-1 font-weight-bold">Result</div>
-                <div class="text-caption text-medium-emphasis">
-                  Computed interpretation (mock)
-                </div>
-              </div>
-              <v-chip size="small" variant="tonal" color="primary">{{
-                result.result_label
-              }}</v-chip>
-            </v-card-title>
-            <v-divider />
             <v-card-text class="pa-5">
-              <div class="text-body-2">{{ result.meaning_snapshot }}</div>
-
-              <div class="text-caption text-medium-emphasis mt-4">
-                Recommendations
-              </div>
-              <v-list density="compact" class="pa-0">
-                <v-list-item
-                  v-for="(r, idx) in result.recommendations_snapshot"
-                  :key="idx"
-                  class="px-0"
-                >
-                  <template #prepend>
-                    <v-icon icon="lucide:check" class="me-2" />
-                  </template>
-                  <v-list-item-title>{{ r }}</v-list-item-title>
-                </v-list-item>
-              </v-list>
-
-              <v-divider class="my-4" />
-
-              <div class="text-subtitle-2 font-weight-bold mb-2">Scores</div>
-
-              <v-alert
-                v-if="result.scoring_type === 'total_score'"
-                type="info"
-                variant="tonal"
-                rounded="lg"
-                class="mb-3"
+              <div
+                class="d-flex align-center justify-space-between ga-2 mb-4 flex-wrap"
               >
-                Total score:
-                <span class="font-weight-bold">{{
-                  result.scores_json.total
-                }}</span>
-                <span class="ms-2">({{ result.bands_json.total_band }})</span>
-              </v-alert>
-
-              <v-row v-else>
-                <v-col
-                  cols="12"
-                  md="6"
-                  v-for="(score, dim) in result.scores_json.dimensions"
-                  :key="dim"
-                >
-                  <v-card rounded="xl" variant="outlined" class="pa-4">
-                    <div class="d-flex align-center justify-space-between">
-                      <div class="min-w-0">
-                        <div
-                          class="text-body-1 font-weight-medium text-capitalize"
-                        >
-                          {{ dim }}
-                        </div>
-                        <div class="text-caption text-medium-emphasis mt-1">
-                          Band: {{ result.bands_json.dimensions[dim] ?? "—" }}
-                        </div>
-                      </div>
-                      <v-chip size="small" variant="tonal">{{ score }}</v-chip>
+                <div class="d-flex align-center ga-3">
+                  <v-avatar size="44" rounded="lg" color="primary" variant="tonal">
+                    <v-icon icon="lucide:sparkles" size="20" />
+                  </v-avatar>
+                  <div>
+                    <div class="text-subtitle-2 font-weight-bold">Result</div>
+                    <div class="text-body-2 text-medium-emphasis">
+                      Computed {{ formatDateTime(result.computed_at) }}
                     </div>
-                  </v-card>
-                </v-col>
-              </v-row>
+                  </div>
+                </div>
+                <v-chip
+                  size="default"
+                  rounded="lg"
+                  variant="tonal"
+                  color="primary"
+                  class="font-weight-bold"
+                >
+                  {{ result.result_label }}
+                </v-chip>
+              </div>
+
+              <div class="text-body-2 mb-5" style="line-height: 1.7">
+                {{ result.meaning_snapshot }}
+              </div>
+
+              <template v-if="result.recommendations_snapshot.length">
+                <div class="text-subtitle-2 font-weight-bold mb-2">
+                  Recommendations
+                </div>
+                <div class="reco-list mb-5">
+                  <div
+                    v-for="(r, idx) in result.recommendations_snapshot"
+                    :key="idx"
+                    class="reco-item"
+                  >
+                    <v-icon
+                      icon="lucide:check-circle-2"
+                      size="16"
+                      color="primary"
+                      class="flex-shrink-0 mt-1"
+                    />
+                    <span class="text-body-2">{{ r }}</span>
+                  </div>
+                </div>
+              </template>
+
+              <v-divider class="mb-5" />
+
+              <!-- Scores: total -->
+              <template v-if="result.scoring_type === 'total_score'">
+                <div class="text-subtitle-2 font-weight-bold mb-3">Score</div>
+                <v-card
+                  rounded="xl"
+                  variant="tonal"
+                  color="primary"
+                  class="pa-4"
+                >
+                  <div class="d-flex align-center justify-space-between">
+                    <div>
+                      <div class="text-h4 font-weight-black">
+                        {{ result.scores_json.total }}
+                      </div>
+                      <div class="text-caption text-medium-emphasis">
+                        Total Score
+                      </div>
+                    </div>
+                    <v-chip
+                      size="small"
+                      rounded="lg"
+                      variant="flat"
+                      color="primary"
+                    >
+                      {{ result.bands_json.total_band }}
+                    </v-chip>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- Scores: multi-dimension -->
+              <template v-else-if="result.scoring_type === 'multi_dimension'">
+                <div class="text-subtitle-2 font-weight-bold mb-3">
+                  Dimension Scores
+                </div>
+                <v-row dense>
+                  <v-col
+                    v-for="(score, dim) in result.scores_json"
+                    :key="dim"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                  >
+                    <v-card rounded="xl" variant="outlined" class="pa-4">
+                      <div class="d-flex align-center justify-space-between">
+                        <div class="min-w-0">
+                          <div
+                            class="text-body-2 font-weight-bold text-capitalize"
+                          >
+                            {{ dim }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis mt-1">
+                            {{ result.bands_json[dim] ?? "—" }}
+                          </div>
+                        </div>
+                        <v-chip
+                          size="small"
+                          rounded="lg"
+                          variant="tonal"
+                          color="primary"
+                        >
+                          {{ score }}
+                        </v-chip>
+                      </div>
+                    </v-card>
+                  </v-col>
+                </v-row>
+              </template>
             </v-card-text>
           </v-card>
 
-          <v-card rounded="xl" variant="outlined" class="mt-6">
-            <v-card-title class="text-subtitle-1 font-weight-bold"
-              >Answers (Summary)</v-card-title
+          <!-- Answers CTA -->
+          <v-card
+            v-if="result && result.answers_snapshot.length"
+            rounded="xl"
+            variant="outlined"
+            class="pa-5 mt-4"
+          >
+            <div
+              class="d-flex align-center justify-space-between ga-4 flex-wrap"
             >
-            <v-divider />
-            <v-card-text class="pa-5">
-              <v-card
-                v-for="a in result.answers_snapshot"
-                :key="a.question_code"
-                rounded="xl"
-                variant="outlined"
-                class="pa-4 mb-3"
-              >
-                <div class="text-body-2 font-weight-medium">
-                  {{ a.question_text }}
+              <div class="d-flex align-center ga-3">
+                <v-avatar
+                  size="44"
+                  rounded="lg"
+                  color="primary"
+                  variant="tonal"
+                >
+                  <v-icon icon="lucide:message-square-text" size="20" />
+                </v-avatar>
+                <div>
+                  <div class="text-subtitle-2 font-weight-bold">
+                    Response Answers
+                  </div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    {{ result.answers_snapshot.length }} answered questions
+                    captured at submission time.
+                  </div>
                 </div>
-                <div class="text-caption text-medium-emphasis mt-1">
-                  Selected: {{ a.selected_label }}
-                </div>
-              </v-card>
-
-              <div
-                v-if="result.answers_snapshot.length === 0"
-                class="text-body-2 text-medium-emphasis"
-              >
-                No answers captured.
               </div>
-            </v-card-text>
+              <v-btn
+                color="primary"
+                rounded="lg"
+                prepend-icon="lucide:list"
+                @click="answersDialog = true"
+              >
+                View Answers
+              </v-btn>
+            </div>
           </v-card>
         </v-col>
       </v-row>
     </div>
 
-    <v-snackbar v-model="snack.open" timeout="1400" location="bottom">
-      {{ snack.text }}
-    </v-snackbar>
+    <!-- Answers Dialog -->
+    <v-dialog v-model="answersDialog" max-width="640" scrollable>
+      <v-card rounded="xl">
+        <v-card-title
+          class="d-flex align-center justify-space-between pa-5 pb-4"
+        >
+          <div>
+            <div class="text-subtitle-1 font-weight-bold">Answers</div>
+            <div v-if="result" class="text-caption text-medium-emphasis">
+              {{ result.answers_snapshot.length }} items
+            </div>
+          </div>
+          <v-btn
+            icon="lucide:x"
+            size="small"
+            variant="text"
+            rounded="lg"
+            @click="answersDialog = false"
+          />
+        </v-card-title>
+        <v-divider />
+        <v-card-text class="pa-5" style="max-height: 60vh">
+          <template v-if="result">
+            <div
+              v-for="(a, idx) in result.answers_snapshot"
+              :key="a.question_code"
+              :class="{ 'mt-4': idx > 0 }"
+            >
+              <div class="d-flex align-start ga-3">
+                <v-avatar
+                  size="24"
+                  variant="tonal"
+                  color="primary"
+                  class="flex-shrink-0 mt-1"
+                >
+                  <span class="text-caption font-weight-bold">{{
+                    idx + 1
+                  }}</span>
+                </v-avatar>
+                <div class="min-w-0 flex-grow-1">
+                  <div class="text-body-2 font-weight-medium mb-2">
+                    {{ a.question_text }}
+                  </div>
+                  <div class="d-flex align-center ga-2 flex-wrap">
+                    <v-chip
+                      size="x-small"
+                      rounded="lg"
+                      variant="tonal"
+                      color="primary"
+                    >
+                      {{ a.selected_label }}
+                    </v-chip>
+                    <span class="text-caption text-medium-emphasis"
+                      >Score: {{ a.score_value }}</span
+                    >
+                    <span
+                      v-if="a.dimension_key"
+                      class="text-caption text-medium-emphasis text-capitalize"
+                    >
+                      &bull; {{ a.dimension_key }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <v-divider
+                v-if="idx < result.answers_snapshot.length - 1"
+                class="mt-4"
+              />
+            </div>
+          </template>
+        </v-card-text>
+        <v-divider />
+        <v-card-actions class="pa-4 justify-end">
+          <v-btn rounded="lg" variant="outlined" @click="answersDialog = false"
+            >Close</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -328,50 +548,44 @@ import { useHead, useRoute } from "#imports";
 
 type UiState = "loading" | "error" | "empty" | "ready";
 
-type ReportMeta = {
+interface ReportMeta {
   id: string;
   questionnaire_code: string;
   questionnaire_title: string;
   questionnaire_version: number;
-  status: "submitted" | "started";
+  status: "submitted" | "in_progress";
   started_at: string;
   submitted_at: string | null;
-};
+}
 
-type ResultTotal = {
-  scoring_type: "total_score";
+interface AnswerItem {
+  question_code: string;
+  question_text: string;
+  selected_label: string;
+  score_value: number;
+  dimension_key?: string;
+}
+
+interface ResultBase {
   computed_at: string;
   result_label: string;
   meaning_snapshot: string;
   recommendations_snapshot: string[];
-  user_info_snapshot: Record<string, any>;
+  user_info_snapshot: Record<string, unknown>;
+  answers_snapshot: AnswerItem[];
+}
+
+interface ResultTotal extends ResultBase {
+  scoring_type: "total_score";
   scores_json: { total: number };
   bands_json: { total_band: string };
-  answers_snapshot: Array<{
-    question_code: string;
-    question_text: string;
-    selected_label: string;
-    score_value: number;
-  }>;
-};
+}
 
-type ResultMulti = {
+interface ResultMulti extends ResultBase {
   scoring_type: "multi_dimension";
-  computed_at: string;
-  result_label: string;
-  meaning_snapshot: string;
-  recommendations_snapshot: string[];
-  user_info_snapshot: Record<string, any>;
-  scores_json: { dimensions: Record<string, number> };
-  bands_json: { dimensions: Record<string, string> };
-  answers_snapshot: Array<{
-    question_code: string;
-    question_text: string;
-    selected_label: string;
-    score_value: number;
-    dimension_key: string;
-  }>;
-};
+  scores_json: Record<string, number>;
+  bands_json: Record<string, string>;
+}
 
 type ReportResult = ResultTotal | ResultMulti;
 
@@ -386,20 +600,18 @@ useHead({
 });
 
 const route = useRoute();
+const api = useApiService();
+const auth = useAuthStore();
+
 const id = computed(() => (route.params.id ?? "").toString());
 
 const uiState = ref<UiState>("loading");
 const errorMessage = ref("");
-
 const reportMeta = ref<ReportMeta | null>(null);
 const result = ref<ReportResult | null>(null);
+const answersDialog = ref(false);
 
-const snack = ref({ open: false, text: "" });
-function toast(text: string) {
-  snack.value = { open: true, text };
-}
-
-function formatDateTime(iso: string | null) {
+function formatDateTime(iso: string | null): string {
   if (!iso) return "—";
   try {
     return new Date(iso).toLocaleString(undefined, {
@@ -414,118 +626,41 @@ function formatDateTime(iso: string | null) {
   }
 }
 
-function prettyKey(k: string) {
+function prettyKey(k: string): string {
   return k.replace(/_/g, " ");
 }
 
-async function load() {
+function handleExport(format: "pdf" | "json"): void {
+  console.info(`[Report] export as ${format}`);
+}
+
+async function load(): Promise<void> {
   uiState.value = "loading";
   errorMessage.value = "";
+  reportMeta.value = null;
+  result.value = null;
 
   try {
-    await new Promise((r) => setTimeout(r, 450));
+    const orgId = auth.auth.organizationId;
+    const res: ApiResult<{ meta: ReportMeta; result: ReportResult | null }> =
+      await api.get(`/v1/organizations/${orgId}/reports/${id.value}`);
 
-    const rows: Array<{ meta: ReportMeta; res: ReportResult }> = [
-      {
-        meta: {
-          id: "att_1001",
-          questionnaire_code: "stress-check",
-          questionnaire_title: "Stress Check (7 mins)",
-          questionnaire_version: 1,
-          status: "submitted",
-          started_at: "2026-01-12T02:10:00Z",
-          submitted_at: "2026-01-12T02:17:00Z",
-        },
-        res: {
-          scoring_type: "total_score",
-          computed_at: "2026-01-12T02:17:10Z",
-          result_label: "Moderate Stress",
-          meaning_snapshot: "Some stress is present. Consider recovery habits.",
-          recommendations_snapshot: [
-            "Schedule breaks",
-            "Light exercise",
-            "Sleep consistency",
-          ],
-          user_info_snapshot: {
-            full_name: "Anonymous User",
-            email: "anon@example.com",
-            organization: "Alpha Wellness Clinic",
-          },
-          scores_json: { total: 6 },
-          bands_json: { total_band: "Moderate Stress" },
-          answers_snapshot: [
-            {
-              question_code: "Q1",
-              question_text: "How often do you feel overwhelmed?",
-              selected_label: "Sometimes",
-              score_value: 2,
-            },
-            {
-              question_code: "Q2",
-              question_text: "How well have you been sleeping recently?",
-              selected_label: "Okay",
-              score_value: 2,
-            },
-          ],
-        },
-      },
-      {
-        meta: {
-          id: "att_1002",
-          questionnaire_code: "energy-balance",
-          questionnaire_title: "Energy Balance (10 mins)",
-          questionnaire_version: 2,
-          status: "submitted",
-          started_at: "2026-01-15T06:10:00Z",
-          submitted_at: "2026-01-15T06:25:00Z",
-        },
-        res: {
-          scoring_type: "multi_dimension",
-          computed_at: "2026-01-15T06:25:10Z",
-          result_label: "Earth Dominant",
-          meaning_snapshot:
-            "You tend to be steady, consistent, and supportive.",
-          recommendations_snapshot: [
-            "Keep routines stable",
-            "Focus on sustainable habits",
-            "Avoid over-commitment",
-          ],
-          user_info_snapshot: {
-            full_name: "Anonymous User",
-            organization: "Alpha Wellness Clinic",
-          },
-          scores_json: { dimensions: { earth: 7, metal: 5 } },
-          bands_json: {
-            dimensions: { earth: "Balanced", metal: "High Focus" },
-          },
-          answers_snapshot: [
-            {
-              question_code: "Q1",
-              question_text: "You prefer to plan before acting.",
-              selected_label: "Agree",
-              score_value: 3,
-              dimension_key: "metal",
-            },
-            {
-              question_code: "Q2",
-              question_text: "You feel grounded when routines are stable.",
-              selected_label: "Strongly agree",
-              score_value: 4,
-              dimension_key: "earth",
-            },
-          ],
-        },
-      },
-    ];
-
-    const found = rows.find((r) => r.meta.id === id.value) ?? null;
-    if (!found) {
-      uiState.value = "empty";
+    if (!res.success) {
+      const msg = (res.error as any)?.message;
+      if (
+        (res.error as any)?.statusCode === 404 ||
+        msg?.toLowerCase().includes("not found")
+      ) {
+        uiState.value = "empty";
+      } else {
+        uiState.value = "error";
+        errorMessage.value = msg || "Failed to load report.";
+      }
       return;
     }
 
-    reportMeta.value = found.meta;
-    result.value = found.res;
+    reportMeta.value = res.data.meta;
+    result.value = res.data.result;
     uiState.value = "ready";
   } catch (e: any) {
     uiState.value = "error";
@@ -535,3 +670,35 @@ async function load() {
 
 onMounted(load);
 </script>
+
+<style lang="scss" scoped>
+.respondent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  flex-shrink: 0;
+}
+
+.detail-value {
+  font-size: 0.875rem;
+  text-align: right;
+  word-break: break-word;
+}
+
+.reco-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.reco-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+</style>

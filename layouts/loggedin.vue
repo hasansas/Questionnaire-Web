@@ -1,31 +1,38 @@
 <template>
   <v-app>
-    <v-layout class="h-100">
-      <!-- Sidebar / Drawer -->
-      <v-navigation-drawer
-        v-model="drawer"
-        :rail="rail"
-        :permanent="mdAndUp"
-        :temporary="!mdAndUp"
-        width="280"
-        rail-width="84"
-        class="sb-drawer"
-      >
-        <OrgSidebar
-          :rail="rail"
-          :active-path="route.path"
-          @toggle-rail="toggleRail"
-        />
-      </v-navigation-drawer>
+    <!-- Pre-hydration / page loading -->
+    <v-card
+      v-if="!hydrated || pageLoading"
+      flat
+      height="100vh"
+      class="d-flex align-center justify-center"
+    >
+      <div class="sb-loader"></div>
+    </v-card>
 
-      <!-- Main -->
-      <v-main>
-        <!-- Top Bar -->
-        <v-app-bar flat height="64" class="sb-appbar" density="comfortable">
+    <div v-show="hydrated && !pageLoading">
+      <ClientOnly>
+        <v-navigation-drawer
+          v-model="drawer"
+          :rail="rail && !isMobile"
+          :temporary="isMobile"
+          :permanent="!isMobile"
+          width="280"
+          rail-width="84"
+          class="sb-drawer"
+        >
+          <OrgSidebar
+            :rail="rail && !isMobile"
+            :active-path="route.path"
+            @toggle-rail="rail = !rail"
+          />
+        </v-navigation-drawer>
+
+        <v-app-bar flat height="64" class="sb-appbar" elevation="0" color="white">
           <div class="d-flex align-center w-100 px-4 ga-2">
             <!-- Mobile drawer toggle -->
             <v-btn
-              v-if="!mdAndUp"
+              v-if="isMobile"
               icon
               variant="text"
               @click="drawer = !drawer"
@@ -34,7 +41,7 @@
             </v-btn>
 
             <!-- Rail toggle (desktop) -->
-            <v-btn v-else icon variant="text" @click="toggleRail">
+            <v-btn v-else icon variant="text" @click="rail = !rail">
               <v-icon
                 :icon="
                   rail ? 'lucide:panel-left-open' : 'lucide:panel-left-close'
@@ -86,7 +93,11 @@
                     >
                       Org Viewer
                     </span>
-                    <v-icon icon="lucide:chevron-down" class="ms-2" size="18" />
+                    <v-icon
+                      icon="lucide:chevron-down"
+                      class="ms-2"
+                      size="18"
+                    />
                   </v-btn>
                 </template>
 
@@ -122,8 +133,9 @@
             </div>
           </div>
         </v-app-bar>
+      </ClientOnly>
 
-        <!-- Page content -->
+      <v-main>
         <div class="sb-content">
           <slot />
         </div>
@@ -132,40 +144,28 @@
           {{ snack.text }}
         </v-snackbar>
       </v-main>
-    </v-layout>
+    </div>
   </v-app>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { useDisplay } from "vuetify";
+import { computed, onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import OrgSidebar from "~/components/org/OrgSidebar.vue";
 
 const route = useRoute();
-const { mdAndUp } = useDisplay();
+const { isMobile } = useIsMobile();
+const { pageLoading } = usePageLoading();
 
 const authStore = useAuthStore();
-const userStore = useUsersStore();
+
+const hydrated = ref(false);
 const drawer = ref(true);
 const rail = ref(false);
 
-watch(
-  () => mdAndUp.value,
-  (isDesktop) => {
-    // Default: drawer open on desktop, closed on mobile
-    drawer.value = isDesktop;
-    // Keep rail mode only meaningful on desktop
-    if (!isDesktop) rail.value = false;
-  },
-  { immediate: true },
-);
-
-function toggleRail() {
-  // Only allow rail toggle on desktop
-  if (!mdAndUp.value) return;
-  rail.value = !rail.value;
-}
+onMounted(() => {
+  hydrated.value = true;
+});
 
 const pageSubtitle = computed(() => {
   const p = route.path;
@@ -182,7 +182,7 @@ function notify(text: string) {
   snack.value = { open: true, text };
 }
 
-function handleLogout() {
+function handleLogout(): void {
   authStore.logout();
 }
 </script>
