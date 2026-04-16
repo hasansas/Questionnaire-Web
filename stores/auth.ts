@@ -174,6 +174,7 @@ export const useAuthStore = defineStore('auth', () => {
       auth.value.token = decodedString
       auth.value.id = decodedPayload?.id ?? ''
       auth.value.role = decodedPayload?.role ?? 'regular'
+      auth.value.organizationId = decodedPayload?.organizationId ?? null
       auth.value.isLoggedIn = true
     } else {
       token.value = null
@@ -265,6 +266,7 @@ export const useAuthStore = defineStore('auth', () => {
         auth.value = normalizeAuth({
           id: decoded.id ?? '',
           role: decoded.role ?? 'regular',
+          organizationId: decoded.organizationId ?? null,
           token: decodedString,
           refreshToken: stringHex.fromHex(refreshToken.value || ''),
           isLoggedIn: true,

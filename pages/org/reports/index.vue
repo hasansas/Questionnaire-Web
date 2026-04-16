@@ -1,15 +1,22 @@
 <template>
   <v-container class="pa-6">
-    <div class="d-flex align-center justify-space-between ga-3 flex-wrap mb-6">
-      <div class="min-w-0">
-        <h1 class="text-h5 font-weight-black ma-0">Reports</h1>
-        <div class="text-body-2 text-medium-emphasis mt-1">
-          Review submitted questionnaire attempts for your organization.
-        </div>
-      </div>
-
-      <div class="d-flex align-center ga-2 flex-wrap justify-end">
-        <v-menu>
+    <!-- @vue-generic {import('~/stores/org-reports').ReportRowModel} -->
+    <SbResourceTableCard
+      page-title="Reports"
+      header-title="Attempt List"
+      page-subtitle="Review submitted questionnaire attempts for your organization."
+      :store="reportsStore"
+      :columns="columns"
+      search-placeholder="Search by name or email"
+      show-filter
+      empty-icon="lucide:file-text"
+      empty-title="No reports found"
+      empty-subtitle="Submissions will appear here once members complete questionnaires."
+      :build-query="buildQuery"
+      :acts-key="null"
+    >
+      <template #page-action>
+        <v-menu location="bottom end" offset="8">
           <template #activator="{ props }">
             <v-btn
               v-bind="props"
@@ -21,54 +28,99 @@
             </v-btn>
           </template>
 
-          <v-card rounded="xl" variant="outlined" class="pa-2">
+          <v-card rounded="xl" variant="outlined" class="pa-1">
             <v-list density="comfortable" class="pa-0">
-              <v-list-item @click="toast('Export CSV (UI only)')">
+              <v-list-item rounded="lg" @click="handleExport('csv')">
                 <template #prepend>
-                  <v-icon icon="lucide:file-down" class="me-2" />
+                  <v-icon icon="lucide:file-down" size="18" class="me-2" />
                 </template>
                 <v-list-item-title>Export CSV</v-list-item-title>
               </v-list-item>
-              <v-list-item @click="toast('Export Excel (UI only)')">
+              <v-list-item rounded="lg" @click="handleExport('excel')">
                 <template #prepend>
-                  <v-icon icon="lucide:file-spreadsheet" class="me-2" />
+                  <v-icon icon="lucide:file-spreadsheet" size="18" class="me-2" />
                 </template>
                 <v-list-item-title>Export Excel</v-list-item-title>
               </v-list-item>
             </v-list>
           </v-card>
         </v-menu>
+      </template>
+      <!-- Columns -->
+      <template #item.user="{ item }">
+        <div class="min-w-0">
+          <div class="text-body-2 font-weight-medium text-truncate">
+            {{ item.user.name }}
+          </div>
+          <div class="text-caption text-medium-emphasis text-truncate">
+            {{ item.user.email }}
+          </div>
+        </div>
+      </template>
 
-        <v-btn
+      <template #item.questionnaire="{ item }">
+        <div class="min-w-0">
+          <div class="text-body-2 text-truncate">
+            {{ item.questionnaire_title }}
+          </div>
+          <div class="text-caption text-medium-emphasis text-truncate">
+            v{{ item.questionnaire_version }} ·
+            {{ item.questionnaire_code }}
+          </div>
+        </div>
+      </template>
+
+      <template #item.status="{ item }">
+        <v-chip
+          size="small"
           rounded="lg"
-          variant="outlined"
-          prepend-icon="lucide:clipboard-list"
-          to="/org/questionnaires"
+          variant="tonal"
+          :color="item.status === 'submitted' ? 'primary' : 'warning'"
         >
-          Questionnaires
-        </v-btn>
-      </div>
-    </div>
+          {{ item.status === 'submitted' ? 'Submitted' : 'In Progress' }}
+        </v-chip>
+      </template>
 
-    <v-card rounded="xl" variant="outlined" class="mb-4">
-      <v-card-text class="pa-4">
-        <v-row>
-          <v-col cols="12" md="5">
-            <v-text-field
-              v-model="search"
-              label="Search by questionnaire or result"
-              prepend-inner-icon="lucide:search"
-              variant="outlined"
-              rounded="lg"
-              density="comfortable"
-              hide-details
-              clearable
-            />
-          </v-col>
+      <template #item.result_label="{ item }">
+        <v-chip
+          v-if="item.result_label"
+          size="small"
+          rounded="lg"
+          variant="tonal"
+          color="primary"
+        >
+          {{ item.result_label }}
+        </v-chip>
+        <span v-else class="text-medium-emphasis text-body-2">—</span>
+      </template>
 
-          <v-col cols="12" md="3">
+      <template #item.submitted_at="{ item }">
+        <div class="text-body-2">
+          {{ item.submitted_at ? formatDateTime(item.submitted_at) : '—' }}
+        </div>
+      </template>
+
+      <template #item.actions="{ item }">
+        <div class="d-flex justify-end">
+          <v-btn
+            size="small"
+            variant="text"
+            rounded="lg"
+            prepend-icon="lucide:external-link"
+            :to="`/org/reports/${item.id}`"
+            @click.stop
+          >
+            View
+          </v-btn>
+        </div>
+      </template>
+
+      <!-- Filters drawer content -->
+      <template #filters="{ draft, set }">
+        <v-row dense>
+          <v-col cols="12">
             <v-select
-              v-model="questionnaireFilter"
+              :model-value="draft.questionnaire"
               :items="questionnaireItems"
               item-title="title"
               item-value="code"
@@ -78,25 +130,14 @@
               density="comfortable"
               hide-details
               clearable
+              class="mb-3"
+              @update:model-value="set('questionnaire', $event)"
             />
           </v-col>
 
-          <v-col cols="12" md="2">
+          <v-col cols="12">
             <v-select
-              v-model="resultLabelFilter"
-              :items="resultLabelOptions"
-              label="Result label"
-              variant="outlined"
-              rounded="lg"
-              density="comfortable"
-              hide-details
-              clearable
-            />
-          </v-col>
-
-          <v-col cols="12" md="2">
-            <v-select
-              v-model="statusFilter"
+              :model-value="draft.status"
               :items="statusOptions"
               label="Status"
               variant="outlined"
@@ -104,212 +145,130 @@
               density="comfortable"
               hide-details
               clearable
+              class="mb-3"
+              @update:model-value="set('status', $event)"
             />
           </v-col>
-        </v-row>
 
-        <v-row class="mt-1">
-          <v-col cols="12" md="3">
+          <v-col cols="12">
             <v-text-field
-              v-model="dateFrom"
+              :model-value="draft.resultLabel"
+              label="Result label"
+              variant="outlined"
+              rounded="lg"
+              density="comfortable"
+              hide-details
+              clearable
+              class="mb-3"
+              @update:model-value="set('resultLabel', $event)"
+            />
+          </v-col>
+
+          <v-col cols="12">
+            <div class="text-caption text-medium-emphasis mb-2">Date range</div>
+          </v-col>
+
+          <v-col cols="12">
+            <v-text-field
+              :model-value="draft.dateFrom"
               label="From (YYYY-MM-DD)"
               variant="outlined"
               rounded="lg"
               density="comfortable"
               hide-details
+              clearable
               placeholder="2026-01-01"
+              class="mb-3"
+              @update:model-value="set('dateFrom', $event)"
             />
           </v-col>
 
-          <v-col cols="12" md="3">
+          <v-col cols="12">
             <v-text-field
-              v-model="dateTo"
+              :model-value="draft.dateTo"
               label="To (YYYY-MM-DD)"
               variant="outlined"
               rounded="lg"
               density="comfortable"
               hide-details
-              placeholder="2026-01-31"
+              clearable
+              placeholder="2026-04-30"
+              @update:model-value="set('dateTo', $event)"
             />
           </v-col>
-
-          <v-col
-            cols="12"
-            md="6"
-            class="d-flex align-center justify-end ga-2 flex-wrap"
-          >
-            <v-btn
-              rounded="lg"
-              variant="text"
-              prepend-icon="lucide:rotate-ccw"
-              @click="resetFilters"
-            >
-              Reset filters
-            </v-btn>
-          </v-col>
         </v-row>
-      </v-card-text>
-    </v-card>
-
-    <div v-if="uiState === 'loading'">
-      <v-skeleton-loader type="table" class="rounded-xl" />
-    </div>
-
-    <div v-else-if="uiState === 'error'">
-      <v-alert type="error" variant="tonal" rounded="lg" class="mb-4">
-        {{ errorMessage }}
-      </v-alert>
-      <v-btn
-        rounded="lg"
-        color="primary"
-        prepend-icon="lucide:refresh-cw"
-        @click="load"
-      >
-        Retry
-      </v-btn>
-    </div>
-
-    <div v-else>
-      <v-card rounded="xl" variant="outlined">
-        <v-data-table
-          :headers="headers"
-          :items="filteredItems"
-          item-key="id"
-          density="comfortable"
-          class="sb-table"
-        >
-          <template #item.submitted_at="{ item }">
-            <div class="text-body-2">
-              {{ item.submitted_at ? formatDateTime(item.submitted_at) : "—" }}
-            </div>
-          </template>
-
-          <template #item.status="{ item }">
-            <v-chip
-              size="small"
-              variant="tonal"
-              :color="item.status === 'submitted' ? 'primary' : 'secondary'"
-            >
-              {{ item.status }}
-            </v-chip>
-          </template>
-
-          <template #item.result_label="{ item }">
-            <v-chip
-              v-if="item.result_label"
-              size="small"
-              variant="tonal"
-              color="primary"
-            >
-              {{ item.result_label }}
-            </v-chip>
-            <span v-else class="text-medium-emphasis">—</span>
-          </template>
-
-          <template #item.actions="{ item }">
-            <v-btn
-              size="small"
-              rounded="lg"
-              variant="text"
-              prepend-icon="lucide:external-link"
-              :to="`/org/reports/${item.id}`"
-            >
-              Open
-            </v-btn>
-          </template>
-
-          <template #no-data>
-            <div class="pa-6 text-center">
-              <div class="text-subtitle-1 font-weight-bold mb-1">
-                No reports found
-              </div>
-              <div class="text-body-2 text-medium-emphasis">
-                Try adjusting your filters or date range.
-              </div>
-            </div>
-          </template>
-        </v-data-table>
-      </v-card>
-    </div>
-
-    <v-snackbar v-model="snack.open" timeout="1400" location="bottom">
-      {{ snack.text }}
-    </v-snackbar>
+      </template>
+    </SbResourceTableCard>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
-import { useHead, useRoute } from "#imports";
-
-type UiState = "loading" | "error" | "empty" | "ready";
-
-type QuestionnaireLite = {
-  code: string;
-  title: string;
-};
-
-type ReportRow = {
-  id: string;
-  questionnaire_code: string;
-  questionnaire_title: string;
-  questionnaire_version: number;
-  status: "submitted" | "started";
-  started_at: string;
-  submitted_at: string | null;
-  result_label: string | null;
-};
+import { computed } from "vue";
+import { useHead } from "#imports";
+import { useOrgReportsStore } from "~/stores/org-reports";
+import type { ReportRowModel } from "~/stores/org-reports";
 
 useHead({
   title: "Reports • Org Console",
   meta: [
     {
       name: "description",
-      content: "Organization reports list with filters and export.",
+      content: "Organization reports list with filters and pagination.",
     },
   ],
 });
 
-const route = useRoute();
+const reportsStore = useOrgReportsStore();
 
-const uiState = ref<UiState>("loading");
-const errorMessage = ref("");
+const questionnaireItems = computed(() => reportsStore.questionnaireOptions);
 
-const search = ref("");
-const questionnaireFilter = ref<string | null>(null);
-const resultLabelFilter = ref<string | null>(null);
-const statusFilter = ref<"submitted" | "started" | null>("submitted");
-
-const dateFrom = ref<string>("");
-const dateTo = ref<string>("");
-
-const questionnaireItems = ref<QuestionnaireLite[]>([]);
-const items = ref<ReportRow[]>([]);
-
-const statusOptions = ["submitted", "started"];
-const resultLabelOptions = [
-  "Moderate Stress",
-  "High Stress",
-  "Low Stress",
-  "Earth Dominant",
-  "Metal Dominant",
+const statusOptions = [
+  { title: "Submitted", value: "submitted" },
+  { title: "In Progress", value: "in_progress" },
 ];
 
-const headers = [
-  { title: "Submitted", key: "submitted_at", sortable: false },
-  { title: "Questionnaire", key: "questionnaire_title", sortable: false },
-  { title: "Version", key: "questionnaire_version", sortable: false },
+const columns: SbTableColumn<ReportRowModel>[] = [
+  { title: "User", key: "user", sortable: false },
+  { title: "Questionnaire", key: "questionnaire", sortable: false },
   { title: "Status", key: "status", sortable: false },
   { title: "Result", key: "result_label", sortable: false },
-  { title: "", key: "actions", sortable: false, align: "end" as const },
+  { title: "Submitted", key: "submitted_at", sortable: false },
+  { title: "", key: "actions", sortable: false, align: "end" },
 ];
 
-const snack = ref({ open: false, text: "" });
-function toast(text: string) {
-  snack.value = { open: true, text };
+function buildQuery({
+  search,
+  filters,
+}: {
+  search: string;
+  filters: Record<string, any>;
+}): string | null {
+  const params = new URLSearchParams();
+
+  const limit = Number(
+    reportsStore.data.pagination?.perPage ?? 20,
+  );
+  params.set("limit", String(limit));
+  params.set("order", "submittedAt");
+  params.set("sort", "DESC");
+
+  if (search) params.set("search", search);
+  if (filters.questionnaire) params.set("questionnaire", filters.questionnaire);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.resultLabel) params.set("resultLabel", filters.resultLabel);
+  if (filters.dateFrom) params.set("dateFrom", filters.dateFrom);
+  if (filters.dateTo) params.set("dateTo", filters.dateTo);
+
+  const qs = params.toString();
+  return qs || null;
 }
 
-function formatDateTime(iso: string) {
+function handleExport(format: "csv" | "excel"): void {
+  // TODO: wire up to export API
+  console.info(`[Reports] export as ${format}`);
+}
+
+function formatDateTime(iso: string): string {
   try {
     return new Date(iso).toLocaleString(undefined, {
       year: "numeric",
@@ -322,126 +281,4 @@ function formatDateTime(iso: string) {
     return iso;
   }
 }
-
-function parseDateOnly(s: string): Date | null {
-  const t = s.trim();
-  if (!t) return null;
-  // Expect YYYY-MM-DD
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(t);
-  if (!m) return null;
-  const [_, y, mo, d] = m;
-  const dt = new Date(Number(y), Number(mo) - 1, Number(d));
-  return isNaN(dt.getTime()) ? null : dt;
-}
-
-const filteredItems = computed(() => {
-  const q = search.value.trim().toLowerCase();
-
-  const from = parseDateOnly(dateFrom.value);
-  const to = parseDateOnly(dateTo.value);
-  const toEnd = to ? new Date(to.getTime() + 24 * 60 * 60 * 1000 - 1) : null;
-
-  return items.value
-    .filter((i) => !statusFilter.value || i.status === statusFilter.value)
-    .filter(
-      (i) =>
-        !questionnaireFilter.value ||
-        i.questionnaire_code === questionnaireFilter.value,
-    )
-    .filter(
-      (i) =>
-        !resultLabelFilter.value || i.result_label === resultLabelFilter.value,
-    )
-    .filter((i) => {
-      if (!q) return true;
-      return (
-        i.questionnaire_title.toLowerCase().includes(q) ||
-        i.questionnaire_code.toLowerCase().includes(q) ||
-        (i.result_label ?? "").toLowerCase().includes(q)
-      );
-    })
-    .filter((i) => {
-      if (!i.submitted_at) return false;
-      const d = new Date(i.submitted_at);
-      if (from && d < from) return false;
-      if (toEnd && d > toEnd) return false;
-      return true;
-    })
-    .sort((a, b) => (b.submitted_at ?? "").localeCompare(a.submitted_at ?? ""));
-});
-
-function resetFilters() {
-  search.value = "";
-  questionnaireFilter.value = null;
-  resultLabelFilter.value = null;
-  statusFilter.value = "submitted";
-  dateFrom.value = "";
-  dateTo.value = "";
-}
-
-async function load() {
-  uiState.value = "loading";
-  errorMessage.value = "";
-
-  try {
-    await new Promise((r) => setTimeout(r, 450));
-
-    questionnaireItems.value = [
-      { code: "stress-check", title: "Stress Check (7 mins)" },
-      { code: "energy-balance", title: "Energy Balance (10 mins)" },
-    ];
-
-    items.value = [
-      {
-        id: "att_1001",
-        questionnaire_code: "stress-check",
-        questionnaire_title: "Stress Check (7 mins)",
-        questionnaire_version: 1,
-        status: "submitted",
-        started_at: "2026-01-12T02:10:00Z",
-        submitted_at: "2026-01-12T02:17:00Z",
-        result_label: "Moderate Stress",
-      },
-      {
-        id: "att_1002",
-        questionnaire_code: "energy-balance",
-        questionnaire_title: "Energy Balance (10 mins)",
-        questionnaire_version: 2,
-        status: "submitted",
-        started_at: "2026-01-15T06:10:00Z",
-        submitted_at: "2026-01-15T06:25:00Z",
-        result_label: "Earth Dominant",
-      },
-      {
-        id: "att_1003",
-        questionnaire_code: "energy-balance",
-        questionnaire_title: "Energy Balance (10 mins)",
-        questionnaire_version: 2,
-        status: "submitted",
-        started_at: "2026-01-18T10:00:00Z",
-        submitted_at: "2026-01-18T10:12:00Z",
-        result_label: "Metal Dominant",
-      },
-    ];
-
-    // Optional pre-filter via query string: ?questionnaire=energy-balance
-    const qs = (route.query.questionnaire ?? "").toString().trim();
-    if (qs) questionnaireFilter.value = qs;
-
-    uiState.value = items.value.length ? "ready" : "empty";
-  } catch (e: any) {
-    uiState.value = "error";
-    errorMessage.value = e?.message || "Failed to load reports.";
-  }
-}
-
-onMounted(load);
 </script>
-
-<style lang="scss" scoped>
-:deep(.sb-table .v-data-table__td),
-:deep(.sb-table .v-data-table__th) {
-  padding-top: 12px;
-  padding-bottom: 12px;
-}
-</style>
