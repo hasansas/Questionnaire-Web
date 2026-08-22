@@ -163,7 +163,10 @@
                     Interpretation summary
                   </div>
                   <div class="text-body-1 text-medium-emphasis leading-relaxed">
-                    {{ result.overallMeaning?.description || "No summary available." }}
+                    {{
+                      result.overallMeaning?.description ||
+                      "No summary available."
+                    }}
                   </div>
                 </div>
               </div>
@@ -183,17 +186,49 @@
                 </div>
               </div>
 
-              <ClientOnly v-if="isMultiDimension">
-                <apexchart
-                  type="radar"
-                  height="280"
-                  :options="radarOptions"
-                  :series="radarSeries"
-                  class="mb-5"
-                />
-              </ClientOnly>
+              <v-row v-if="isMultiDimension" align="center">
+                <v-col cols="12" md="6">
+                  <ClientOnly>
+                    <apexchart
+                      type="radar"
+                      height="320"
+                      :options="radarOptions"
+                      :series="radarSeries"
+                    />
+                  </ClientOnly>
+                </v-col>
 
-              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="d-flex flex-column">
+                    <div
+                      v-for="(item, index) in scoreItems"
+                      :key="item.key"
+                      class="d-flex align-center justify-space-between ga-3 score-row"
+                    >
+                      <div class="d-flex align-center ga-3 min-width-0">
+                        <span
+                          class="score-dot"
+                          :style="{ background: dimensionColor(index) }"
+                        />
+                        <div class="min-width-0">
+                          <div class="text-body-2 font-weight-bold">
+                            {{ item.label }}
+                          </div>
+                          <div class="text-caption text-medium-emphasis">
+                            {{ formatBand(item.band) }}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="text-h6 font-weight-bold">
+                        {{ item.score }}
+                      </div>
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+
+              <v-row v-else>
                 <v-col
                   v-for="item in scoreItems"
                   :key="item.key"
@@ -231,7 +266,10 @@
 
             <!-- Dimension breakdown -->
             <v-card
-              v-if="result.dimensionMeanings?.length"
+              v-if="
+                result.scoringTypeSnapshot !== 'total_score' &&
+                result.dimensionMeanings?.length
+              "
               rounded="xl"
               variant="outlined"
               class="pa-6 pa-md-8 mb-6"
@@ -250,69 +288,79 @@
                 </div>
               </div>
 
-              <v-expansion-panels variant="accordion" rounded="lg">
-                <v-expansion-panel
+              <div class="d-flex flex-column ga-4">
+                <v-card
                   v-for="dm in result.dimensionMeanings ?? []"
                   :key="dm.dimensionKey"
+                  rounded="lg"
+                  variant="outlined"
+                  class="pa-4 pa-md-5"
                 >
-                  <v-expansion-panel-title>
-                    <div class="d-flex align-center ga-2 flex-wrap">
-                      <span class="text-body-2 font-weight-bold">
-                        {{ dm.dimensionLabel || formatKeyLabel(dm.dimensionKey) }}
-                      </span>
-                      <v-chip size="x-small" rounded="lg" variant="tonal" color="primary">
-                        {{ dm.score }}
-                      </v-chip>
-                      <v-chip
-                        v-if="dm.band"
-                        size="x-small"
-                        rounded="lg"
-                        :color="bandColor(dm.band)"
-                        variant="flat"
+                  <div class="d-flex align-center ga-2 flex-wrap mb-3">
+                    <span class="text-subtitle-1 font-weight-bold">
+                      {{ dm.dimensionLabel || formatKeyLabel(dm.dimensionKey) }}
+                    </span>
+                    <v-chip
+                      size="x-small"
+                      rounded="lg"
+                      variant="tonal"
+                      color="primary"
+                    >
+                      {{ dm.score }}
+                    </v-chip>
+                    <v-chip
+                      v-if="dm.band"
+                      size="x-small"
+                      rounded="lg"
+                      :color="bandColor(dm.band)"
+                      variant="flat"
+                    >
+                      {{ formatBand(dm.band) }}
+                    </v-chip>
+                  </div>
+
+                  <div
+                    v-if="dm.resultLabel"
+                    class="text-subtitle-2 font-weight-bold mb-2"
+                  >
+                    {{ dm.resultLabel }}
+                  </div>
+                  <div
+                    v-if="dm.description"
+                    class="text-body-2 text-medium-emphasis mb-3 leading-relaxed"
+                  >
+                    {{ dm.description }}
+                  </div>
+                  <div v-else class="text-body-2 text-medium-emphasis mb-3">
+                    No interpretation configured for this band yet.
+                  </div>
+
+                  <template v-if="dm.recommendations?.length">
+                    <div
+                      class="text-caption font-weight-bold text-medium-emphasis mb-2"
+                    >
+                      Recommendations
+                    </div>
+                    <div class="d-flex flex-column ga-2">
+                      <div
+                        v-for="(r, idx) in dm.recommendations"
+                        :key="idx"
+                        class="d-flex align-start ga-2"
                       >
-                        {{ formatBand(dm.band) }}
-                      </v-chip>
-                    </div>
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <div
-                      v-if="dm.resultLabel"
-                      class="text-subtitle-2 font-weight-bold mb-2"
-                    >
-                      {{ dm.resultLabel }}
-                    </div>
-                    <div
-                      v-if="dm.description"
-                      class="text-body-2 text-medium-emphasis mb-3 leading-relaxed"
-                    >
-                      {{ dm.description }}
-                    </div>
-                    <div v-else class="text-body-2 text-medium-emphasis mb-3">
-                      No interpretation configured for this band yet.
-                    </div>
-                    <template v-if="dm.recommendations?.length">
-                      <div class="text-caption font-weight-bold text-medium-emphasis mb-2">
-                        Recommendations
+                        <v-icon
+                          icon="lucide:check-circle-2"
+                          size="16"
+                          color="primary"
+                          class="flex-shrink-0 mt-1"
+                        />
+                        <span class="text-body-2 text-medium-emphasis">{{
+                          r
+                        }}</span>
                       </div>
-                      <div class="d-flex flex-column ga-2">
-                        <div
-                          v-for="(r, idx) in dm.recommendations"
-                          :key="idx"
-                          class="d-flex align-start ga-2"
-                        >
-                          <v-icon
-                            icon="lucide:check-circle-2"
-                            size="16"
-                            color="primary"
-                            class="flex-shrink-0 mt-1"
-                          />
-                          <span class="text-body-2 text-medium-emphasis">{{ r }}</span>
-                        </div>
-                      </div>
-                    </template>
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+                    </div>
+                  </template>
+                </v-card>
+              </div>
             </v-card>
 
             <!-- Recommendations -->
@@ -361,6 +409,57 @@
 
           <!-- Sidebar -->
           <v-col cols="12" md="4">
+            <v-card
+              v-if="Object.keys(result.userInfoSnapshot || {}).length"
+              rounded="xl"
+              variant="outlined"
+              class="pa-6 mb-6"
+            >
+              <div class="d-flex align-center ga-3 mb-4">
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:user" />
+                </v-avatar>
+                <div>
+                  <div class="text-subtitle-1 font-weight-bold">
+                    Respondent Info
+                  </div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    Snapshot at submission
+                  </div>
+                </div>
+              </div>
+
+              <v-divider class="my-4" />
+
+              <v-list density="compact" class="pa-0" bg-color="transparent">
+                <v-list-item
+                  v-for="(val, key) in result.userInfoSnapshot"
+                  :key="key"
+                  class="px-0"
+                >
+                  <template #prepend>
+                    <v-avatar
+                      size="32"
+                      color="primary"
+                      variant="tonal"
+                      rounded="lg"
+                    >
+                      <v-icon :icon="userInfoIcon(String(key))" size="16" />
+                    </v-avatar>
+                  </template>
+
+                  <div class="d-flex justify-space-between align-center ga-3">
+                    <span class="text-body-2 text-medium-emphasis">
+                      {{ key }}
+                    </span>
+                    <span class="text-body-2 font-weight-medium text-end">
+                      {{ String(val) }}
+                    </span>
+                  </div>
+                </v-list-item>
+              </v-list>
+            </v-card>
+
             <v-card rounded="xl" variant="outlined" class="pa-6 mb-6">
               <div class="d-flex align-center ga-3">
                 <v-avatar size="44" color="primary" variant="outlined">
@@ -512,20 +611,32 @@ const recommendations = computed(() =>
     : [],
 );
 
+const dimensionLabelByKey = computed(() => {
+  const map: Record<string, string> = {};
+  for (const dm of result.value?.dimensionMeanings ?? []) {
+    if (dm.dimensionKey && dm.dimensionLabel) {
+      map[dm.dimensionKey] = dm.dimensionLabel;
+    }
+  }
+  return map;
+});
+
 const scoreItems = computed(() => {
   const scores = result.value?.scoresJson || {};
   const bands = result.value?.bandsJson || {};
 
   return Object.keys(scores).map((key) => ({
     key,
-    label: formatKeyLabel(key),
+    label: dimensionLabelByKey.value[key] || formatKeyLabel(key),
     score: Number(scores[key] || 0),
     band: String(bands[key] || "").trim(),
   }));
 });
 
 const resultLabelText = computed(() =>
-  String(result.value?.overallMeaning?.resultLabel || "Result available").trim(),
+  String(
+    result.value?.overallMeaning?.resultLabel || "Result available",
+  ).trim(),
 );
 
 const scoringTypeLabel = computed(() => {
@@ -549,6 +660,23 @@ const formattedUpdatedAt = computed(() =>
 
 function notifyError(text: string) {
   snack.open(text, { color: "error" });
+}
+
+function userInfoIcon(key: string) {
+  const text = String(key || "").toLowerCase();
+
+  if (/email/.test(text)) return "lucide:mail";
+  if (/phone|mobile|whatsapp|wa\b/.test(text)) return "lucide:phone";
+  if (/name/.test(text)) return "lucide:user";
+  if (/gender/.test(text)) return "lucide:venus-and-mars";
+  if (/age|birth|dob/.test(text)) return "lucide:cake";
+  if (/address|location|city|country/.test(text)) return "lucide:map-pin";
+  if (/company|organization|office/.test(text)) return "lucide:building-2";
+  if (/job|role|position|occupation/.test(text)) return "lucide:briefcase";
+  if (/education|school|university/.test(text)) return "lucide:graduation-cap";
+  if (/date|time/.test(text)) return "lucide:calendar";
+
+  return "lucide:info";
 }
 
 function formatKeyLabel(value: string) {
@@ -587,7 +715,10 @@ const radarOptions = computed(() => ({
     toolbar: { show: false },
   },
   xaxis: {
-    categories: scoreItems.value.map((item) => item.label),
+    categories: scoreItems.value.map((item) => [
+      item.key,
+      formatBand(item.band),
+    ]),
     labels: { style: { fontSize: "12px" } },
   },
   yaxis: { show: false },
@@ -596,7 +727,33 @@ const radarOptions = computed(() => ({
   stroke: { width: 2 },
   markers: { size: 4 },
   dataLabels: { enabled: false },
+  plotOptions: {
+    radar: {
+      polygons: {
+        strokeColors: "#9ca3af",
+        connectorColors: "#e5e7eb",
+        fill: {
+          colors: ["white", "white"],
+        },
+      },
+    },
+  },
 }));
+
+const dimensionColorPalette = [
+  "#ef4444",
+  "#f97316",
+  "#6b7280",
+  "#3b82f6",
+  "#10b981",
+  "#a855f7",
+  "#eab308",
+  "#14b8a6",
+];
+
+function dimensionColor(index: number) {
+  return dimensionColorPalette[index % dimensionColorPalette.length];
+}
 
 function bandColor(value: string) {
   const band = String(value || "")
@@ -723,5 +880,32 @@ watch(attemptId, loadResult, { immediate: true });
 
 .score-card {
   min-height: 110px;
+}
+
+.score-row {
+  padding-block: 10px;
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.score-row:last-child {
+  border-bottom: none;
+}
+
+.score-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* only target the top label (first one in radar) */
+:deep(.apexcharts-xaxis-label:first-of-type) {
+  transform: translateY(-16px) !important;
+}
+
+:deep(.apexcharts-xaxis-label tspan:nth-child(1)) {
+  text-transform: uppercase;
+  fill: #666 !important;
+  font-weight: 700;
 }
 </style>
