@@ -25,6 +25,8 @@ export interface AttemptQuestionModel {
   text: string
   description: string
   questionType: string
+  questionMode: string
+  imageUrl: string | null
   isRequired: boolean
   sortOrder: number
   prevQuestionId: string | null
@@ -77,6 +79,8 @@ export function createDefaultAttemptQuestionSession(): AttemptQuestionSessionMod
       text: '',
       description: '',
       questionType: '',
+      questionMode: 'text',
+      imageUrl: null,
       isRequired: false,
       sortOrder: 0,
       prevQuestionId: null,
@@ -145,6 +149,10 @@ export function normalizeAttemptQuestionSession(
       text: String(payload?.question?.text || '').trim(),
       description: String(payload?.question?.description || '').trim(),
       questionType: String(payload?.question?.questionType || '').trim(),
+      questionMode: String(payload?.question?.questionMode || 'text').trim(),
+      imageUrl: payload?.question?.imageUrl
+        ? String(payload.question.imageUrl).trim()
+        : null,
       isRequired: Boolean(payload?.question?.isRequired),
       sortOrder: Number(payload?.question?.sortOrder || 0),
       prevQuestionId: payload?.question?.prevQuestionId

@@ -1,5 +1,6 @@
 export interface QuestionnaireAttemptUserInfoFieldModel {
   key: string
+  label?: string
   value: string
 }
 
@@ -43,6 +44,7 @@ export function normalizeQuestionnaireAttempt(
   const userInfoFields = Array.isArray(payload?.userInfo?.fields)
     ? payload.userInfo.fields.map((field: any) => ({
       key: String(field?.key || '').trim(),
+      label: field?.label ? String(field.label).trim() : undefined,
       value: String(field?.value ?? ''),
     }))
     : []

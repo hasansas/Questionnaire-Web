@@ -175,6 +175,15 @@
                 </div>
               </div>
 
+              <v-img
+                v-if="question.questionMode === 'image' && question.imageUrl"
+                :src="question.imageUrl"
+                rounded="lg"
+                max-height="360"
+                class="mb-5"
+                cover
+              />
+
               <v-divider class="mb-5" />
 
               <v-radio-group v-model="selectedValue" class="mt-1">
@@ -232,6 +241,57 @@
 
           <!-- Sidebar -->
           <v-col cols="12" md="4">
+            <v-card
+              v-if="attempt.userInfo.fields.length"
+              rounded="lg"
+              variant="outlined"
+              class="pa-6 mb-6"
+            >
+              <div class="d-flex align-center ga-3 mb-4">
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:user" />
+                </v-avatar>
+                <div>
+                  <div class="text-subtitle-1 font-weight-bold">
+                    Respondent Info
+                  </div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    Provided for this session
+                  </div>
+                </div>
+              </div>
+
+              <v-divider class="my-4" />
+
+              <v-list density="compact" class="pa-0" bg-color="transparent">
+                <v-list-item
+                  v-for="field in attempt.userInfo.fields"
+                  :key="field.key"
+                  class="px-0"
+                >
+                  <template #prepend>
+                    <v-avatar
+                      size="32"
+                      color="primary"
+                      variant="tonal"
+                      rounded="lg"
+                    >
+                      <v-icon :icon="userInfoIcon(field.key)" size="16" />
+                    </v-avatar>
+                  </template>
+
+                  <div class="d-flex justify-space-between align-center ga-3">
+                    <span class="text-body-2 text-medium-emphasis">
+                      {{ field.label || formatKeyLabel(field.key) }}
+                    </span>
+                    <span class="text-body-2 font-weight-medium text-end">
+                      {{ field.value }}
+                    </span>
+                  </div>
+                </v-list-item>
+              </v-list>
+            </v-card>
+
             <v-card rounded="lg" variant="outlined" class="pa-6 mb-6">
               <div class="d-flex align-center ga-3">
                 <v-avatar size="40" color="primary" variant="tonal">
@@ -514,6 +574,32 @@ function optionValue(opt: any) {
   return String(opt.id || "");
 }
 
+function formatKeyLabel(value: string) {
+  const text = String(value || "").trim();
+  if (!text) return "-";
+
+  return text
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function userInfoIcon(key: string) {
+  const text = String(key || "").toLowerCase();
+
+  if (/email/.test(text)) return "lucide:mail";
+  if (/phone|mobile|whatsapp|wa\b/.test(text)) return "lucide:phone";
+  if (/name/.test(text)) return "lucide:user";
+  if (/gender/.test(text)) return "lucide:venus-and-mars";
+  if (/age|birth|dob/.test(text)) return "lucide:cake";
+  if (/address|location|city|country/.test(text)) return "lucide:map-pin";
+  if (/company|organization|office/.test(text)) return "lucide:building-2";
+  if (/job|role|position|occupation/.test(text)) return "lucide:briefcase";
+  if (/education|school|university/.test(text)) return "lucide:graduation-cap";
+  if (/date|time/.test(text)) return "lucide:calendar";
+
+  return "lucide:info";
+}
+
 async function loadData() {
   if (!attemptId.value) {
     isPageLoading.value = false;
@@ -647,9 +733,7 @@ async function finishAttempt() {
 
     notifySuccess("Questionnaire completed.");
 
-    await navigateTo(
-      localePath(`/q/${code.value}/result/${attemptId.value}`),
-    );
+    await navigateTo(localePath(`/q/${code.value}/result/${attemptId.value}`));
     return true;
   } catch (err: any) {
     localError.value =

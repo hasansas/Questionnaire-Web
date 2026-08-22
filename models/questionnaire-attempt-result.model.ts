@@ -22,6 +22,7 @@ export interface QuestionnaireAttemptResultModel {
   bandsJson: Record<string, string>
   overallMeaning: OverallMeaningModel
   dimensionMeanings: DimensionMeaningModel[]
+  userInfoSnapshot: Record<string, any>
   computedAt: string
   createdAt: string
   updatedAt: string
@@ -40,6 +41,7 @@ export function createDefaultQuestionnaireAttemptResult(): QuestionnaireAttemptR
       recommendations: [],
     },
     dimensionMeanings: [],
+    userInfoSnapshot: {},
     computedAt: '',
     createdAt: '',
     updatedAt: '',
@@ -101,6 +103,12 @@ export function normalizeQuestionnaireAttemptResult(
         : {},
     overallMeaning: normalizeOverallMeaning(payload?.overallMeaning),
     dimensionMeanings: normalizeDimensionMeanings(payload?.dimensionMeanings),
+    userInfoSnapshot:
+      payload?.userInfoSnapshot && typeof payload.userInfoSnapshot === 'object'
+        ? payload.userInfoSnapshot
+        : payload?.user_info_snapshot && typeof payload.user_info_snapshot === 'object'
+          ? payload.user_info_snapshot
+          : {},
     computedAt: String(payload?.computedAt || '').trim(),
     createdAt: String(payload?.createdAt || '').trim(),
     updatedAt: String(payload?.updatedAt || '').trim(),

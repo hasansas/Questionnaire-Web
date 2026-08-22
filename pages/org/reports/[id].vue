@@ -254,7 +254,7 @@
       <!-- Result summary -->
       <v-row v-else>
         <!-- Left column: meta + user info -->
-        <v-col cols="12" md="4">
+        <v-col cols="12" md="3">
           <!-- User info snapshot (only when result exists) -->
           <v-card
             v-if="result && Object.keys(result.user_info_snapshot).length"
@@ -281,26 +281,72 @@
                 </div>
               </div>
 
-              <div
-                v-for="(val, key) in result.user_info_snapshot"
-                :key="key"
-                class="mb-3"
-              >
-                <div
-                  class="text-caption text-medium-emphasis text-capitalize mb-1"
+              <v-divider class="my-4" />
+
+              <v-list density="compact" class="pa-0" bg-color="transparent">
+                <v-list-item
+                  v-for="(val, key) in result.user_info_snapshot"
+                  :key="key"
+                  class="px-0"
                 >
-                  {{ prettyKey(String(key)) }}
+                  <template #prepend>
+                    <v-avatar
+                      size="32"
+                      color="primary"
+                      variant="tonal"
+                    >
+                      <v-icon :icon="userInfoIcon(String(key))" size="16" />
+                    </v-avatar>
+                  </template>
+
+                  <div class="d-flex justify-space-between align-center ga-3">
+                    <span class="text-body-2 text-medium-emphasis">
+                      {{ key }}
+                    </span>
+                    <span class="text-body-2 font-weight-medium text-end">
+                      {{ String(val) }}
+                    </span>
+                  </div>
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+          </v-card>
+
+          <!-- Answers CTA -->
+          <v-card
+            v-if="result && result.answers_snapshot.length"
+            rounded="xl"
+            variant="outlined"
+            class="pa-5 mt-4"
+          >
+            <div class="d-flex align-center ga-3 mb-4">
+              <v-avatar size="44" rounded="lg" color="primary" variant="tonal">
+                <v-icon icon="lucide:message-square-text" size="20" />
+              </v-avatar>
+              <div>
+                <div class="text-subtitle-2 font-weight-bold">
+                  Response Answers
                 </div>
-                <div class="text-body-2 font-weight-medium">
-                  {{ String(val) }}
+                <div class="text-body-2 text-medium-emphasis">
+                  {{ result.answers_snapshot.length }} answered questions
+                  captured at submission time.
                 </div>
               </div>
-            </v-card-text>
+            </div>
+            <v-btn
+              color="primary"
+              rounded="lg"
+              block
+              prepend-icon="lucide:list"
+              @click="answersDialog = true"
+            >
+              View Answers
+            </v-btn>
           </v-card>
         </v-col>
 
         <!-- Right column: meta + user info -->
-        <v-col cols="12" md="8">
+        <v-col cols="12" md="9">
           <v-card rounded="xl" variant="outlined">
             <v-card-text class="pa-5">
               <div
@@ -396,45 +442,45 @@
                   Dimension Scores
                 </div>
 
-                <ClientOnly>
-                  <apexchart
-                    type="radar"
-                    height="280"
-                    :options="radarOptions"
-                    :series="radarSeries"
-                  />
-                </ClientOnly>
+                <v-row align="center">
+                  <v-col cols="12" md="6">
+                    <ClientOnly>
+                      <apexchart
+                        type="radar"
+                        height="320"
+                        :options="radarOptions"
+                        :series="radarSeries"
+                      />
+                    </ClientOnly>
+                  </v-col>
 
-                <v-row dense class="mt-2">
-                  <v-col
-                    v-for="(score, dim) in result.scores_json"
-                    :key="dim"
-                    cols="12"
-                    sm="6"
-                    md="4"
-                  >
-                    <v-card rounded="xl" variant="outlined" class="pa-4">
-                      <div class="d-flex align-center justify-space-between">
-                        <div class="min-w-0">
-                          <div
-                            class="text-body-2 font-weight-bold text-capitalize"
-                          >
-                            {{ dim }}
-                          </div>
-                          <div class="text-caption text-medium-emphasis mt-1">
-                            {{ result.bands_json[dim] ?? "—" }}
+                  <v-col cols="12" md="6">
+                    <div class="d-flex flex-column">
+                      <div
+                        v-for="(item, index) in scoreItems"
+                        :key="item.key"
+                        class="d-flex align-center justify-space-between ga-3 score-row"
+                      >
+                        <div class="d-flex align-center ga-3 min-w-0">
+                          <span
+                            class="score-dot"
+                            :style="{ background: dimensionColor(index) }"
+                          />
+                          <div class="min-w-0">
+                            <div class="text-body-2 font-weight-bold">
+                              {{ item.label }}
+                            </div>
+                            <div class="text-caption text-medium-emphasis">
+                              {{ formatBand(item.band) }}
+                            </div>
                           </div>
                         </div>
-                        <v-chip
-                          size="small"
-                          rounded="lg"
-                          variant="tonal"
-                          color="primary"
-                        >
-                          {{ score }}
-                        </v-chip>
+
+                        <div class="text-h6 font-weight-bold">
+                          {{ item.score }}
+                        </div>
                       </div>
-                    </v-card>
+                    </div>
                   </v-col>
                 </v-row>
 
@@ -443,123 +489,82 @@
                   <div class="text-subtitle-2 font-weight-bold mt-6 mb-3">
                     Dimension Breakdown
                   </div>
-                  <v-expansion-panels variant="accordion" rounded="lg">
-                    <v-expansion-panel
+
+                  <div class="d-flex flex-column ga-4">
+                    <v-card
                       v-for="dm in result.dimension_meanings"
                       :key="dm.dimensionKey"
+                      rounded="lg"
+                      variant="outlined"
+                      class="pa-4 pa-md-5"
                     >
-                      <v-expansion-panel-title>
-                        <div class="d-flex align-center ga-2 flex-wrap">
-                          <span class="text-body-2 font-weight-bold">
-                            {{ dm.dimensionLabel || dm.dimensionKey }}
-                          </span>
-                          <v-chip
-                            size="x-small"
-                            rounded="lg"
-                            variant="tonal"
-                            color="primary"
-                          >
-                            {{ dm.score }}
-                          </v-chip>
-                          <v-chip
-                            v-if="dm.band"
-                            size="x-small"
-                            rounded="lg"
-                            variant="tonal"
-                            class="text-capitalize"
-                          >
-                            {{ dm.band }}
-                          </v-chip>
-                        </div>
-                      </v-expansion-panel-title>
-                      <v-expansion-panel-text>
-                        <div
-                          v-if="dm.resultLabel"
-                          class="text-subtitle-2 font-weight-bold mb-2"
+                      <div class="d-flex align-center ga-2 flex-wrap mb-3">
+                        <span class="text-body-2 font-weight-bold">
+                          {{ dm.dimensionLabel || dm.dimensionKey }}
+                        </span>
+                        <v-chip
+                          size="x-small"
+                          rounded="lg"
+                          variant="tonal"
+                          color="primary"
                         >
-                          {{ dm.resultLabel }}
-                        </div>
-                        <div
-                          v-if="dm.description"
-                          class="text-body-2 mb-3"
-                          style="line-height: 1.7"
+                          {{ dm.score }}
+                        </v-chip>
+                        <v-chip
+                          v-if="dm.band"
+                          size="x-small"
+                          rounded="lg"
+                          :color="bandColor(dm.band)"
+                          variant="flat"
                         >
-                          {{ dm.description }}
-                        </div>
+                          {{ formatBand(dm.band) }}
+                        </v-chip>
+                      </div>
+
+                      <div
+                        v-if="dm.resultLabel"
+                        class="text-subtitle-2 font-weight-bold mb-2"
+                      >
+                        {{ dm.resultLabel }}
+                      </div>
+                      <div
+                        v-if="dm.description"
+                        class="text-body-2 mb-3"
+                        style="line-height: 1.7"
+                      >
+                        {{ dm.description }}
+                      </div>
+                      <div v-else class="text-body-2 text-medium-emphasis mb-3">
+                        No interpretation configured for this band yet.
+                      </div>
+
+                      <template v-if="dm.recommendations?.length">
                         <div
-                          v-else
-                          class="text-body-2 text-medium-emphasis mb-3"
+                          class="text-caption font-weight-bold text-medium-emphasis mb-2"
                         >
-                          No interpretation configured for this band yet.
+                          Recommendations
                         </div>
-                        <template v-if="dm.recommendations?.length">
+                        <div class="reco-list">
                           <div
-                            class="text-caption font-weight-bold text-medium-emphasis mb-2"
+                            v-for="(r, idx) in dm.recommendations"
+                            :key="idx"
+                            class="reco-item"
                           >
-                            Recommendations
+                            <v-icon
+                              icon="lucide:check-circle-2"
+                              size="16"
+                              color="primary"
+                              class="flex-shrink-0 mt-1"
+                            />
+                            <span class="text-body-2">{{ r }}</span>
                           </div>
-                          <div class="reco-list">
-                            <div
-                              v-for="(r, idx) in dm.recommendations"
-                              :key="idx"
-                              class="reco-item"
-                            >
-                              <v-icon
-                                icon="lucide:check-circle-2"
-                                size="16"
-                                color="primary"
-                                class="flex-shrink-0 mt-1"
-                              />
-                              <span class="text-body-2">{{ r }}</span>
-                            </div>
-                          </div>
-                        </template>
-                      </v-expansion-panel-text>
-                    </v-expansion-panel>
-                  </v-expansion-panels>
+                        </div>
+                      </template>
+                    </v-card>
+                  </div>
                 </template>
               </template>
             </v-card-text>
-          </v-card>
-
-          <!-- Answers CTA -->
-          <v-card
-            v-if="result && result.answers_snapshot.length"
-            rounded="xl"
-            variant="outlined"
-            class="pa-5 mt-4"
-          >
-            <div
-              class="d-flex align-center justify-space-between ga-4 flex-wrap"
-            >
-              <div class="d-flex align-center ga-3">
-                <v-avatar
-                  size="44"
-                  rounded="lg"
-                  color="primary"
-                  variant="tonal"
-                >
-                  <v-icon icon="lucide:message-square-text" size="20" />
-                </v-avatar>
-                <div>
-                  <div class="text-subtitle-2 font-weight-bold">
-                    Response Answers
-                  </div>
-                  <div class="text-body-2 text-medium-emphasis">
-                    {{ result.answers_snapshot.length }} answered questions
-                    captured at submission time.
-                  </div>
-                </div>
-              </div>
-              <v-btn
-                color="primary"
-                rounded="lg"
-                prepend-icon="lucide:list"
-                @click="answersDialog = true"
-              >
-                View Answers
-              </v-btn>
-            </div>
           </v-card>
         </v-col>
       </v-row>
@@ -742,13 +747,97 @@ function formatDateTime(iso: string | null): string {
   }
 }
 
+function userInfoIcon(key: string) {
+  const text = String(key || "").toLowerCase();
+
+  if (/email/.test(text)) return "lucide:mail";
+  if (/phone|mobile|whatsapp|wa\b/.test(text)) return "lucide:phone";
+  if (/name/.test(text)) return "lucide:user";
+  if (/gender/.test(text)) return "lucide:venus-and-mars";
+  if (/age|birth|dob/.test(text)) return "lucide:cake";
+  if (/address|location|city|country/.test(text)) return "lucide:map-pin";
+  if (/company|organization|office/.test(text)) return "lucide:building-2";
+  if (/job|role|position|occupation/.test(text)) return "lucide:briefcase";
+  if (/education|school|university/.test(text)) return "lucide:graduation-cap";
+  if (/date|time/.test(text)) return "lucide:calendar";
+
+  return "lucide:info";
+}
+
 function prettyKey(k: string): string {
   return k.replace(/_/g, " ");
 }
 
-function capitalize(k: string): string {
-  return k.charAt(0).toUpperCase() + k.slice(1);
+function formatKeyLabel(value: string) {
+  const text = String(value || "").trim();
+  if (!text) return "-";
+
+  return text
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 }
+
+function formatBand(value: string) {
+  const text = String(value || "").trim();
+  if (!text) return "-";
+
+  return text.charAt(0).toUpperCase() + text.slice(1);
+}
+
+function bandColor(value: string) {
+  const band = String(value || "")
+    .trim()
+    .toLowerCase();
+
+  if (band === "high") return "success";
+  if (band === "medium") return "warning";
+  if (band === "low") return "error";
+
+  return "primary";
+}
+
+const dimensionColorPalette = [
+  "#ef4444",
+  "#f97316",
+  "#6b7280",
+  "#3b82f6",
+  "#10b981",
+  "#a855f7",
+  "#eab308",
+  "#14b8a6",
+];
+
+function dimensionColor(index: number) {
+  return dimensionColorPalette[index % dimensionColorPalette.length];
+}
+
+const dimensionLabelByKey = computed(() => {
+  const map: Record<string, string> = {};
+  if (result.value && result.value.scoring_type === "multi_dimension") {
+    for (const dm of result.value.dimension_meanings ?? []) {
+      if (dm.dimensionKey && dm.dimensionLabel) {
+        map[dm.dimensionKey] = dm.dimensionLabel;
+      }
+    }
+  }
+  return map;
+});
+
+const scoreItems = computed(() => {
+  if (!result.value || result.value.scoring_type !== "multi_dimension") {
+    return [];
+  }
+
+  const scores = result.value.scores_json;
+  const bands = result.value.bands_json;
+
+  return Object.keys(scores).map((key) => ({
+    key,
+    label: dimensionLabelByKey.value[key] || formatKeyLabel(key),
+    score: Number(scores[key] || 0),
+    band: String(bands[key] || "").trim(),
+  }));
+});
 
 const radarSeries = computed(() => {
   if (!result.value || result.value.scoring_type !== "multi_dimension") {
@@ -757,34 +846,41 @@ const radarSeries = computed(() => {
   return [
     {
       name: "Score",
-      data: Object.values(result.value.scores_json),
+      data: scoreItems.value.map((item) => item.score),
     },
   ];
 });
 
-const radarOptions = computed(() => {
-  const categories =
-    result.value && result.value.scoring_type === "multi_dimension"
-      ? Object.keys(result.value.scores_json).map(capitalize)
-      : [];
-
-  return {
-    chart: {
-      type: "radar",
-      toolbar: { show: false },
+const radarOptions = computed(() => ({
+  chart: {
+    type: "radar",
+    toolbar: { show: false },
+  },
+  xaxis: {
+    categories: scoreItems.value.map((item) => [
+      item.key,
+      formatBand(item.band),
+    ]),
+    labels: { style: { fontSize: "12px" } },
+  },
+  yaxis: { show: false },
+  colors: ["#6366f1"],
+  fill: { opacity: 0.3 },
+  stroke: { width: 1 },
+  markers: { size: 4 },
+  dataLabels: { enabled: false },
+  plotOptions: {
+    radar: {
+      polygons: {
+        strokeColors: "#9ca3af",
+        connectorColors: "#e5e7eb",
+        fill: {
+          colors: ["white", "white"],
+        },
+      },
     },
-    xaxis: {
-      categories,
-      labels: { style: { fontSize: "12px" } },
-    },
-    yaxis: { show: false },
-    colors: ["#6366f1"],
-    fill: { opacity: 0.3 },
-    stroke: { width: 2 },
-    markers: { size: 4 },
-    dataLabels: { enabled: false },
-  };
-});
+  },
+}));
 
 function handleExport(format: "pdf" | "json"): void {
   console.info(`[Report] export as ${format}`);
@@ -856,5 +952,32 @@ onMounted(load);
   display: flex;
   align-items: flex-start;
   gap: 8px;
+}
+
+.score-row {
+  padding-block: 10px;
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.score-row:last-child {
+  border-bottom: none;
+}
+
+.score-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* only target the top label (first one in radar) */
+:deep(.apexcharts-xaxis-label:first-of-type) {
+  transform: translateY(-16px) !important;
+}
+
+:deep(.apexcharts-xaxis-label tspan:nth-child(1)) {
+  text-transform: uppercase;
+  fill: #666 !important;
+  font-weight: 700;
 }
 </style>
