@@ -163,7 +163,7 @@
                     Interpretation summary
                   </div>
                   <div class="text-body-1 text-medium-emphasis leading-relaxed">
-                    {{ result.meaningSnapshot || "No summary available." }}
+                    {{ result.overallMeaning?.description || "No summary available." }}
                   </div>
                 </div>
               </div>
@@ -182,6 +182,16 @@
                   </div>
                 </div>
               </div>
+
+              <ClientOnly v-if="isMultiDimension">
+                <apexchart
+                  type="radar"
+                  height="280"
+                  :options="radarOptions"
+                  :series="radarSeries"
+                  class="mb-5"
+                />
+              </ClientOnly>
 
               <v-row>
                 <v-col
@@ -217,6 +227,92 @@
                   </v-card>
                 </v-col>
               </v-row>
+            </v-card>
+
+            <!-- Dimension breakdown -->
+            <v-card
+              v-if="result.dimensionMeanings?.length"
+              rounded="xl"
+              variant="outlined"
+              class="pa-6 pa-md-8 mb-6"
+            >
+              <div class="d-flex align-center ga-3 mb-5">
+                <v-avatar size="44" color="primary" variant="outlined">
+                  <v-icon icon="lucide:layers" />
+                </v-avatar>
+                <div>
+                  <div class="text-h6 font-weight-bold">
+                    Dimension breakdown
+                  </div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    What each dimension's score means for you
+                  </div>
+                </div>
+              </div>
+
+              <v-expansion-panels variant="accordion" rounded="lg">
+                <v-expansion-panel
+                  v-for="dm in result.dimensionMeanings ?? []"
+                  :key="dm.dimensionKey"
+                >
+                  <v-expansion-panel-title>
+                    <div class="d-flex align-center ga-2 flex-wrap">
+                      <span class="text-body-2 font-weight-bold">
+                        {{ dm.dimensionLabel || formatKeyLabel(dm.dimensionKey) }}
+                      </span>
+                      <v-chip size="x-small" rounded="lg" variant="tonal" color="primary">
+                        {{ dm.score }}
+                      </v-chip>
+                      <v-chip
+                        v-if="dm.band"
+                        size="x-small"
+                        rounded="lg"
+                        :color="bandColor(dm.band)"
+                        variant="flat"
+                      >
+                        {{ formatBand(dm.band) }}
+                      </v-chip>
+                    </div>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <div
+                      v-if="dm.resultLabel"
+                      class="text-subtitle-2 font-weight-bold mb-2"
+                    >
+                      {{ dm.resultLabel }}
+                    </div>
+                    <div
+                      v-if="dm.description"
+                      class="text-body-2 text-medium-emphasis mb-3 leading-relaxed"
+                    >
+                      {{ dm.description }}
+                    </div>
+                    <div v-else class="text-body-2 text-medium-emphasis mb-3">
+                      No interpretation configured for this band yet.
+                    </div>
+                    <template v-if="dm.recommendations?.length">
+                      <div class="text-caption font-weight-bold text-medium-emphasis mb-2">
+                        Recommendations
+                      </div>
+                      <div class="d-flex flex-column ga-2">
+                        <div
+                          v-for="(r, idx) in dm.recommendations"
+                          :key="idx"
+                          class="d-flex align-start ga-2"
+                        >
+                          <v-icon
+                            icon="lucide:check-circle-2"
+                            size="16"
+                            color="primary"
+                            class="flex-shrink-0 mt-1"
+                          />
+                          <span class="text-body-2 text-medium-emphasis">{{ r }}</span>
+                        </div>
+                      </div>
+                    </template>
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
             </v-card>
 
             <!-- Recommendations -->
@@ -354,9 +450,10 @@
               <v-divider class="my-4" />
 
               <div class="text-body-2 text-medium-emphasis">
-                This page shows the latest computed result for your
-                questionnaire attempt. You can restart the questionnaire if you
-                want to submit a new set of answers.
+                This page shows the computed result for this questionnaire
+                attempt. It's linked to your attempt ID, so this link stays
+                accessible even after your session ends. You can retake the
+                questionnaire if you want to submit a new set of answers.
               </div>
             </v-card>
           </v-col>
@@ -367,7 +464,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useQuestionnaireAttemptStore } from "~/stores/questionnaire-attempt";
 import {
@@ -386,18 +483,10 @@ const localePath = useLocalePath();
 const attemptStore = useQuestionnaireAttemptStore();
 const snack = useAppSnackbar();
 
-const { item: attempt, resultItem } = storeToRefs(attemptStore);
+const { resultItem } = storeToRefs(attemptStore);
 
 const code = computed(() => String(route.params.code || "").trim());
-
-const attemptCookie = useCookie<any>(`q-attempt:${code.value}`, {
-  sameSite: "lax",
-  path: "/",
-});
-
-const attemptId = computed(() =>
-  String(attemptCookie.value?.attemptId || attempt.value?.id || "").trim(),
-);
+const attemptId = computed(() => String(route.params.attemptId || "").trim());
 
 const localResult = ref<QuestionnaireAttemptResultModel>(
   createDefaultQuestionnaireAttemptResult(),
@@ -416,8 +505,8 @@ const uiState = computed<UiState>(() => {
 });
 
 const recommendations = computed(() =>
-  Array.isArray(result.value?.recommendationsSnapshot)
-    ? result.value.recommendationsSnapshot.filter((item) =>
+  Array.isArray(result.value?.overallMeaning?.recommendations)
+    ? result.value.overallMeaning.recommendations.filter((item: string) =>
         String(item || "").trim(),
       )
     : [],
@@ -436,7 +525,7 @@ const scoreItems = computed(() => {
 });
 
 const resultLabelText = computed(() =>
-  String(result.value?.resultLabel || "Result available").trim(),
+  String(result.value?.overallMeaning?.resultLabel || "Result available").trim(),
 );
 
 const scoringTypeLabel = computed(() => {
@@ -478,6 +567,37 @@ function formatBand(value: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
+const isMultiDimension = computed(
+  () => result.value?.scoringTypeSnapshot === "multi_dimension",
+);
+
+const radarSeries = computed(() => {
+  if (!isMultiDimension.value) return [];
+  return [
+    {
+      name: "Score",
+      data: scoreItems.value.map((item) => item.score),
+    },
+  ];
+});
+
+const radarOptions = computed(() => ({
+  chart: {
+    type: "radar",
+    toolbar: { show: false },
+  },
+  xaxis: {
+    categories: scoreItems.value.map((item) => item.label),
+    labels: { style: { fontSize: "12px" } },
+  },
+  yaxis: { show: false },
+  colors: ["#6366f1"],
+  fill: { opacity: 0.3 },
+  stroke: { width: 2 },
+  markers: { size: 4 },
+  dataLabels: { enabled: false },
+}));
+
 function bandColor(value: string) {
   const band = String(value || "")
     .trim()
@@ -504,40 +624,30 @@ function formatDateTime(value?: string) {
   }
 }
 
-function readResultFromSession(): QuestionnaireAttemptResultModel | null {
-  if (!import.meta.client) return null;
-
-  try {
-    const raw = sessionStorage.getItem(`q-result:${code.value}`);
-    if (!raw) return null;
-
-    const parsed = JSON.parse(raw);
-    if (!parsed?.result?.id) return null;
-
-    return parsed.result as QuestionnaireAttemptResultModel;
-  } catch {
-    return null;
-  }
-}
-
 async function loadResult() {
   isPageLoading.value = true;
   localError.value = null;
   hasLoaded.value = false;
 
+  if (!attemptId.value) {
+    localResult.value = createDefaultQuestionnaireAttemptResult();
+    hasLoaded.value = false;
+    isPageLoading.value = false;
+    return;
+  }
+
   try {
-    const cached = readResultFromSession();
-
-    if (cached?.id) {
-      localResult.value = cached;
+    // Reuse the just-submitted result already in the store (set by
+    // take.vue right before navigating here) to avoid a redundant
+    // round-trip. Always falls through to a live fetch otherwise —
+    // e.g. a shared link, a different browser, or after a page reload
+    // where Pinia state has reset.
+    if (
+      resultItem.value?.id &&
+      resultItem.value.attemptId === attemptId.value
+    ) {
+      localResult.value = resultItem.value;
       hasLoaded.value = true;
-      isPageLoading.value = false;
-      return;
-    }
-
-    if (!attemptId.value) {
-      localResult.value = createDefaultQuestionnaireAttemptResult();
-      hasLoaded.value = false;
       isPageLoading.value = false;
       return;
     }
@@ -575,7 +685,6 @@ function restart() {
 
   if (import.meta.client) {
     sessionStorage.removeItem(`q-user-info:${code.value}`);
-    sessionStorage.removeItem(`q-result:${code.value}`);
   }
 
   navigateTo(localePath(`/q/${code.value}/user-info`));
@@ -597,7 +706,10 @@ useHead(() => ({
   ],
 }));
 
-onMounted(loadResult);
+// `immediate: true` covers the initial mount; the watch itself covers
+// navigating between two different attemptId URLs without a full
+// page reload (Vue Router reuses this component instance).
+watch(attemptId, loadResult, { immediate: true });
 </script>
 
 <style scoped>

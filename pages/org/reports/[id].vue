@@ -263,12 +263,21 @@
           >
             <v-card-text class="pa-5">
               <div class="d-flex align-center ga-3 mb-4">
-                <v-avatar size="44" rounded="lg" color="primary" variant="tonal">
+                <v-avatar
+                  size="44"
+                  rounded="lg"
+                  color="primary"
+                  variant="tonal"
+                >
                   <v-icon icon="lucide:user" size="20" />
                 </v-avatar>
                 <div>
-                  <div class="text-subtitle-2 font-weight-bold">Respondent Info</div>
-                  <div class="text-body-2 text-medium-emphasis">Snapshot at submission</div>
+                  <div class="text-subtitle-2 font-weight-bold">
+                    Respondent Info
+                  </div>
+                  <div class="text-body-2 text-medium-emphasis">
+                    Snapshot at submission
+                  </div>
                 </div>
               </div>
 
@@ -298,7 +307,12 @@
                 class="d-flex align-center justify-space-between ga-2 mb-4 flex-wrap"
               >
                 <div class="d-flex align-center ga-3">
-                  <v-avatar size="44" rounded="lg" color="primary" variant="tonal">
+                  <v-avatar
+                    size="44"
+                    rounded="lg"
+                    color="primary"
+                    variant="tonal"
+                  >
                     <v-icon icon="lucide:sparkles" size="20" />
                   </v-avatar>
                   <div>
@@ -381,7 +395,17 @@
                 <div class="text-subtitle-2 font-weight-bold mb-3">
                   Dimension Scores
                 </div>
-                <v-row dense>
+
+                <ClientOnly>
+                  <apexchart
+                    type="radar"
+                    height="280"
+                    :options="radarOptions"
+                    :series="radarSeries"
+                  />
+                </ClientOnly>
+
+                <v-row dense class="mt-2">
                   <v-col
                     v-for="(score, dim) in result.scores_json"
                     :key="dim"
@@ -413,6 +437,87 @@
                     </v-card>
                   </v-col>
                 </v-row>
+
+                <!-- Per-dimension band meaning breakdown -->
+                <template v-if="result.dimension_meanings?.length">
+                  <div class="text-subtitle-2 font-weight-bold mt-6 mb-3">
+                    Dimension Breakdown
+                  </div>
+                  <v-expansion-panels variant="accordion" rounded="lg">
+                    <v-expansion-panel
+                      v-for="dm in result.dimension_meanings"
+                      :key="dm.dimensionKey"
+                    >
+                      <v-expansion-panel-title>
+                        <div class="d-flex align-center ga-2 flex-wrap">
+                          <span class="text-body-2 font-weight-bold">
+                            {{ dm.dimensionLabel || dm.dimensionKey }}
+                          </span>
+                          <v-chip
+                            size="x-small"
+                            rounded="lg"
+                            variant="tonal"
+                            color="primary"
+                          >
+                            {{ dm.score }}
+                          </v-chip>
+                          <v-chip
+                            v-if="dm.band"
+                            size="x-small"
+                            rounded="lg"
+                            variant="tonal"
+                            class="text-capitalize"
+                          >
+                            {{ dm.band }}
+                          </v-chip>
+                        </div>
+                      </v-expansion-panel-title>
+                      <v-expansion-panel-text>
+                        <div
+                          v-if="dm.resultLabel"
+                          class="text-subtitle-2 font-weight-bold mb-2"
+                        >
+                          {{ dm.resultLabel }}
+                        </div>
+                        <div
+                          v-if="dm.description"
+                          class="text-body-2 mb-3"
+                          style="line-height: 1.7"
+                        >
+                          {{ dm.description }}
+                        </div>
+                        <div
+                          v-else
+                          class="text-body-2 text-medium-emphasis mb-3"
+                        >
+                          No interpretation configured for this band yet.
+                        </div>
+                        <template v-if="dm.recommendations?.length">
+                          <div
+                            class="text-caption font-weight-bold text-medium-emphasis mb-2"
+                          >
+                            Recommendations
+                          </div>
+                          <div class="reco-list">
+                            <div
+                              v-for="(r, idx) in dm.recommendations"
+                              :key="idx"
+                              class="reco-item"
+                            >
+                              <v-icon
+                                icon="lucide:check-circle-2"
+                                size="16"
+                                color="primary"
+                                class="flex-shrink-0 mt-1"
+                              />
+                              <span class="text-body-2">{{ r }}</span>
+                            </div>
+                          </div>
+                        </template>
+                      </v-expansion-panel-text>
+                    </v-expansion-panel>
+                  </v-expansion-panels>
+                </template>
               </template>
             </v-card-text>
           </v-card>
@@ -566,6 +671,16 @@ interface AnswerItem {
   dimension_key?: string;
 }
 
+interface DimensionMeaning {
+  dimensionKey: string;
+  dimensionLabel?: string | null;
+  score: number;
+  band: string | null;
+  resultLabel: string | null;
+  description: string | null;
+  recommendations: string[] | null;
+}
+
 interface ResultBase {
   computed_at: string;
   result_label: string;
@@ -585,6 +700,7 @@ interface ResultMulti extends ResultBase {
   scoring_type: "multi_dimension";
   scores_json: Record<string, number>;
   bands_json: Record<string, string>;
+  dimension_meanings: DimensionMeaning[];
 }
 
 type ReportResult = ResultTotal | ResultMulti;
@@ -629,6 +745,46 @@ function formatDateTime(iso: string | null): string {
 function prettyKey(k: string): string {
   return k.replace(/_/g, " ");
 }
+
+function capitalize(k: string): string {
+  return k.charAt(0).toUpperCase() + k.slice(1);
+}
+
+const radarSeries = computed(() => {
+  if (!result.value || result.value.scoring_type !== "multi_dimension") {
+    return [];
+  }
+  return [
+    {
+      name: "Score",
+      data: Object.values(result.value.scores_json),
+    },
+  ];
+});
+
+const radarOptions = computed(() => {
+  const categories =
+    result.value && result.value.scoring_type === "multi_dimension"
+      ? Object.keys(result.value.scores_json).map(capitalize)
+      : [];
+
+  return {
+    chart: {
+      type: "radar",
+      toolbar: { show: false },
+    },
+    xaxis: {
+      categories,
+      labels: { style: { fontSize: "12px" } },
+    },
+    yaxis: { show: false },
+    colors: ["#6366f1"],
+    fill: { opacity: 0.3 },
+    stroke: { width: 2 },
+    markers: { size: 4 },
+    dataLabels: { enabled: false },
+  };
+});
 
 function handleExport(format: "pdf" | "json"): void {
   console.info(`[Report] export as ${format}`);

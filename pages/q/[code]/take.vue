@@ -464,18 +464,6 @@ function notifyError(text: string) {
   snack.open(text, { color: "error" });
 }
 
-function saveSubmitResultToSession(result: any) {
-  if (!import.meta.client) return;
-
-  sessionStorage.setItem(
-    `q-result:${code.value}`,
-    JSON.stringify({
-      attemptId: attemptId.value,
-      result,
-    }),
-  );
-}
-
 function syncActiveQuestionState(session?: any) {
   const sessionQuestion = session?.question || question.value;
 
@@ -657,10 +645,11 @@ async function finishAttempt() {
       throw new Error("Failed to submit attempt.");
     }
 
-    saveSubmitResultToSession(result);
     notifySuccess("Questionnaire completed.");
 
-    await navigateTo(localePath(`/q/${code.value}/result`));
+    await navigateTo(
+      localePath(`/q/${code.value}/result/${attemptId.value}`),
+    );
     return true;
   } catch (err: any) {
     localError.value =
@@ -791,7 +780,6 @@ function restart() {
 
   if (import.meta.client) {
     sessionStorage.removeItem(`q-user-info:${code.value}`);
-    sessionStorage.removeItem(`q-result:${code.value}`);
   }
 
   navigateTo(localePath(`/q/${code.value}/user-info`));

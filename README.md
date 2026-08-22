@@ -88,3 +88,27 @@ Use JSDoc-style comments (/** ... */) for functions, methods, and lifecycle hook
 
 sudo apt update
 sudo apt install -y build-essential python3 make g++ libsqlite3-dev
+
+## Commit Messages
+
+Use **Conventional Commits** for local commits and PR titles that merge to `main`.
+
+Format:
+
+```text
+<type>(<scope>): <subject>
+```
+
+Examples:
+- `feat(users): add login`
+- `fix(auth): prevent refresh loop on 401`
+- `chore(ci): add semantic-release workflow`
+
+Version impact:
+- `fix(...)` -> patch
+- `feat(...)` -> minor
+- `feat!(...)`, `fix!(...)`, or `BREAKING CHANGE:` -> major
+
+Recommended rule:
+- use **Squash merge** into `main`
+- make the **PR title** follow the same conventional format, because it becomes the final commit on `main`

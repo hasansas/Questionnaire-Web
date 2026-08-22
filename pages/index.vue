@@ -1,24 +1,31 @@
-<!-- /pages/index.vue -->
 <template>
   <div>
-    <!-- Hero -->
+    <!-- ──────────────────────────────── Hero ──────────────────────────────── -->
     <section class="sb-section sbq-hero">
       <v-container class="main-container">
-        <v-row align="center" class="py-10" dense>
-          <v-col cols="12" md="6" class="pr-md-10">
-            <div class="text-h1 text-md-h2 font-weight-bold sbq-hero-title">
+        <v-row align="center" class="py-16" dense>
+          <v-col cols="12" md="6" class="pr-md-12">
+            <v-chip
+              variant="tonal"
+              color="primary"
+              size="small"
+              rounded="lg"
+              class="mb-5 font-weight-medium"
+            >
+              <v-icon icon="lucide:sparkles" size="14" class="me-1" />
+              Assessment Platform
+            </v-chip>
+
+            <h1 class="sbq-hero-title">
               Turn Questionnaires Into Decisions,
               <span class="text-primary">Not Spreadsheets.</span>
-            </div>
+            </h1>
 
-            <div
-              class="text-body-1 text-medium-emphasis mt-4"
-              style="max-width: 560px"
-            >
+            <p class="text-body-1 text-medium-emphasis mt-4 sbq-hero-sub">
               SB Questionnaire helps organizations collect, analyze, and
               generate actionable results from any type of assessment — all from
-              a single, beautiful platform.
-            </div>
+              a single platform.
+            </p>
 
             <div class="d-flex flex-wrap align-center ga-3 mt-8">
               <v-btn
@@ -30,60 +37,56 @@
               >
                 Request a Demo
               </v-btn>
-
               <v-btn variant="outlined" rounded="lg" size="large">
                 Try a sample form
               </v-btn>
             </div>
 
-            <div
-              class="d-flex flex-wrap align-center ga-5 mt-8 text-body-2 text-medium-emphasis"
-            >
+            <div class="d-flex flex-wrap align-center ga-5 mt-6 text-body-2 text-medium-emphasis">
               <div class="d-flex align-center ga-2">
-                <v-icon
-                  size="18"
-                  icon="lucide:check-circle-2"
-                  color="primary"
-                />
+                <v-icon size="16" icon="lucide:check-circle-2" color="primary" />
                 <span>No credit card required</span>
               </div>
               <div class="d-flex align-center ga-2">
-                <v-icon size="18" icon="lucide:clock-3" color="primary" />
+                <v-icon size="16" icon="lucide:clock-3" color="primary" />
                 <span>Free for 14 days</span>
+              </div>
+              <div class="d-flex align-center ga-2">
+                <v-icon size="16" icon="lucide:shield-check" color="primary" />
+                <span>SOC 2 compliant</span>
               </div>
             </div>
           </v-col>
 
           <v-col cols="12" md="6">
-            <v-card rounded="xl" variant="outlined" class="pa-4 sbq-hero-card">
-              <div class="d-flex align-center mb-2">
-                <v-icon icon="lucide:chart-column" size="18" color="primary" />
-                <div class="text-caption text-medium-emphasis ml-2">
-                  What you’ll see
-                </div>
+            <v-card rounded="xl" variant="outlined" class="sbq-hero-card pa-5">
+              <div class="d-flex align-center justify-space-between mb-4">
+                <div class="text-subtitle-2 font-weight-bold">Live Dashboard</div>
+                <v-chip size="x-small" color="success" variant="tonal" rounded="lg">
+                  <v-icon icon="lucide:circle" size="8" class="me-1" />
+                  Live
+                </v-chip>
               </div>
+
               <v-card
-                v-for="(item, i) in heroBullets"
-                :key="i"
+                v-for="item in heroBullets"
+                :key="item.title"
                 variant="outlined"
                 rounded="lg"
-                class="mt-3 pa-2"
+                class="mb-3 pa-3"
               >
-                <v-list-item class="px-2">
-                  <template #prepend>
-                    <v-avatar size="28" class="sbq-bullet">
-                      <v-icon size="16" :icon="item.icon" color="primary" />
-                    </v-avatar>
-                  </template>
-                  <v-list-item-title class="text-body-2 font-weight-semibold">
-                    {{ item.title }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle
-                    class="text-caption text-medium-emphasis"
-                  >
-                    {{ item.subtitle }}
-                  </v-list-item-subtitle>
-                </v-list-item>
+                <div class="d-flex align-center ga-3">
+                  <v-avatar size="32" rounded="lg" color="primary" variant="tonal">
+                    <v-icon size="16" :icon="item.icon" />
+                  </v-avatar>
+                  <div class="min-w-0 flex-grow-1">
+                    <div class="text-body-2 font-weight-semibold">{{ item.title }}</div>
+                    <div class="text-caption text-medium-emphasis">{{ item.subtitle }}</div>
+                  </div>
+                  <v-chip size="x-small" variant="tonal" color="primary" rounded="lg">
+                    {{ item.stat }}
+                  </v-chip>
+                </div>
               </v-card>
             </v-card>
           </v-col>
@@ -91,254 +94,252 @@
       </v-container>
     </section>
 
-    <!-- Section: Insight is hard -->
+    <!-- ──────────────────────── Stats bar ──────────────────────── -->
+    <section class="sbq-stats-bar">
+      <v-container class="main-container">
+        <v-row justify="center" dense>
+          <v-col
+            v-for="s in stats"
+            :key="s.label"
+            cols="6"
+            sm="3"
+            class="text-center py-8"
+          >
+            <div class="sbq-stat-value">{{ s.value }}</div>
+            <div class="text-body-2 text-medium-emphasis mt-1">{{ s.label }}</div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </section>
+
+    <!-- ──────────────────── Pain + platform bullets ──────────────────── -->
     <section class="sb-section">
       <v-container class="main-container">
-        <div class="text-h2 font-weight-bold text-center">
-          Collecting answers is easy. Turning<br class="d-none d-md-block" />
-          them into insight is hard.
-        </div>
+        <div class="section-label">The Challenge</div>
+        <h2 class="section-heading">
+          Collecting answers is easy.<br class="d-none d-md-block" />
+          Turning them into insight is hard.
+        </h2>
 
         <v-row class="mt-10">
           <v-col
-            cols="12"
-            md="3"
             v-for="card in insightCards"
             :key="card.title"
+            cols="12"
+            sm="6"
+            md="3"
           >
             <v-card rounded="xl" variant="outlined" class="pa-5 h-100">
-              <v-avatar size="36" class="sbq-icon">
-                <v-icon size="18" :icon="card.icon" color="primary" />
+              <v-avatar size="40" rounded="lg" color="primary" variant="tonal">
+                <v-icon size="18" :icon="card.icon" />
               </v-avatar>
-              <div class="text-subtitle-1 font-weight-bold mt-4">
-                {{ card.title }}
-              </div>
-              <div class="text-body-2 text-medium-emphasis mt-2">
-                {{ card.desc }}
-              </div>
+              <div class="text-subtitle-2 font-weight-bold mt-4">{{ card.title }}</div>
+              <div class="text-body-2 text-medium-emphasis mt-2">{{ card.desc }}</div>
             </v-card>
           </v-col>
         </v-row>
 
-        <v-row class="mt-8" justify="center" dense>
-          <v-col cols="12" md="8">
-            <div class="text-center mt-12">
-              <div class="text-h4 font-weight-bold">
-                Everything you need to run assessments end-to-end.
-              </div>
-              <div class="text-body-2 text-medium-emphasis mt-2">
-                SB Questionnaire brings together all the tools your organization
-                needs — from creation and delivery to reporting — all without
-                building any infrastructure.
-              </div>
-            </div>
-            <div class="pa-6 mt-8">
-              <v-card variant="outlined" rounded="xl">
-                <div v-for="(p, i) in platformBullets">
-                  <div class="d-flex align-center text-body-2 py-4 px-6">
-                    <v-icon
-                      size="18"
-                      icon="lucide:check"
-                      color="primary"
-                      class="mr-4"
-                    />
-                    <span class="text-medium-emphasis">{{ p }}</span>
+        <v-row class="mt-16" justify="center">
+          <v-col cols="12" md="10">
+            <v-card rounded="xl" variant="outlined" class="pa-8">
+              <v-row align="center" dense>
+                <v-col cols="12" md="5">
+                  <div class="section-label">Platform</div>
+                  <h3 class="text-h5 font-weight-black mt-2">
+                    Everything you need, end-to-end.
+                  </h3>
+                  <p class="text-body-2 text-medium-emphasis mt-2">
+                    From creation to reporting — no infrastructure required.
+                  </p>
+                </v-col>
+                <v-col cols="12" md="7">
+                  <div class="platform-grid">
+                    <div
+                      v-for="(p, i) in platformBullets"
+                      :key="i"
+                      class="d-flex align-center ga-2 text-body-2"
+                    >
+                      <v-icon size="16" icon="lucide:check-circle-2" color="primary" class="flex-shrink-0" />
+                      <span class="text-medium-emphasis">{{ p }}</span>
+                    </div>
                   </div>
-                  <v-divider
-                    v-if="i < platformBullets.length - 1"
-                    class="my-0"
-                  />
-                </div>
-              </v-card>
-            </div>
+                </v-col>
+              </v-row>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
     </section>
 
-    <!-- Steps -->
+    <!-- ──────────────────────────── Steps ──────────────────────────────── -->
     <section class="sb-section sbq-band">
       <v-container class="main-container">
-        <div class="text-h2 font-weight-bold text-center">
-          Launch in three simple steps.
-        </div>
-        <div class="text-body-2 text-medium-emphasis text-center mt-2">
+        <div class="section-label text-center">How It Works</div>
+        <h2 class="section-heading text-center">Launch in three simple steps.</h2>
+        <p class="section-sub text-center">
           From setup to insights — fast, confident, and repeatable.
-        </div>
+        </p>
 
         <v-row class="mt-10">
-          <v-col cols="12" md="4" v-for="(s, idx) in steps" :key="s.title">
-            <div class="text-center px-4">
-              <v-avatar size="54" class="sbq-step-icon">
-                <v-icon size="22" :icon="s.icon" color="primary" />
-              </v-avatar>
-              <div class="text-subtitle-2 text-primary font-weight-bold mt-4">
-                STEP {{ idx + 1 }}
+          <v-col
+            v-for="(s, idx) in steps"
+            :key="s.title"
+            cols="12"
+            md="4"
+          >
+            <v-card rounded="xl" variant="outlined" class="pa-6 h-100">
+              <div class="d-flex align-center ga-3 mb-4">
+                <v-avatar size="40" rounded="lg" color="primary" variant="tonal">
+                  <v-icon size="18" :icon="s.icon" />
+                </v-avatar>
+                <div class="sbq-step-num">{{ String(idx + 1).padStart(2, '0') }}</div>
               </div>
-              <div class="text-h6 font-weight-bold mt-1">
-                {{ s.title }}
-              </div>
-              <div class="text-body-2 text-medium-emphasis mt-2">
-                {{ s.desc }}
-              </div>
-            </div>
+              <div class="text-subtitle-1 font-weight-bold">{{ s.title }}</div>
+              <div class="text-body-2 text-medium-emphasis mt-2">{{ s.desc }}</div>
+            </v-card>
           </v-col>
         </v-row>
       </v-container>
     </section>
 
-    <!-- Built for real-world -->
+    <!-- ──────────────────── Built for real-world ──────────────────── -->
     <section class="sb-section">
       <v-container class="main-container">
-        <div class="text-h2 font-weight-bold text-center">
-          Built for real-world assessments.
-        </div>
+        <div class="section-label">Reliability</div>
+        <h2 class="section-heading">Built for real-world assessments.</h2>
 
         <v-row class="mt-10">
-          <v-col cols="12" md="3" v-for="c in builtCards" :key="c.title">
+          <v-col
+            v-for="c in builtCards"
+            :key="c.title"
+            cols="12"
+            sm="6"
+            md="3"
+          >
             <v-card rounded="xl" variant="outlined" class="pa-5 h-100">
-              <v-avatar size="36" class="sbq-icon">
-                <v-icon size="18" :icon="c.icon" color="primary" />
+              <v-avatar size="40" rounded="lg" color="primary" variant="tonal">
+                <v-icon size="18" :icon="c.icon" />
               </v-avatar>
-              <div class="text-subtitle-1 font-weight-bold mt-4">
-                {{ c.title }}
-              </div>
-              <div class="text-body-2 text-medium-emphasis mt-2">
-                {{ c.desc }}
-              </div>
+              <div class="text-subtitle-2 font-weight-bold mt-4">{{ c.title }}</div>
+              <div class="text-body-2 text-medium-emphasis mt-2">{{ c.desc }}</div>
             </v-card>
           </v-col>
         </v-row>
 
-        <div class="text-center mt-16">
-          <div class="text-h4 font-weight-bold">
+        <div class="mt-16">
+          <div class="section-label text-center">Who It's For</div>
+          <h3 class="text-h5 font-weight-black text-center mt-2">
             Made for schools, universities, and partner programs.
-          </div>
+          </h3>
         </div>
 
         <v-row class="mt-8" dense>
-          <v-col cols="12" md="4" v-for="a in audiences" :key="a.title">
-            <v-card
-              rounded="xl"
-              variant="outlined"
-              class="text-center pa-6 h-100"
-            >
-              <v-avatar size="48" variant="tonal" color="primary">
-                <v-icon size="18" :icon="a.icon" color="primary" />
-              </v-avatar>
-              <div class="text-subtitle-1 font-weight-bold mt-2">
-                {{ a.title }}
+          <v-col
+            v-for="a in audiences"
+            :key="a.title"
+            cols="12"
+            md="4"
+          >
+            <v-card rounded="xl" variant="outlined" class="pa-6 h-100">
+              <div class="d-flex align-center ga-3 mb-3">
+                <v-avatar size="44" rounded="lg" color="primary" variant="tonal">
+                  <v-icon size="20" :icon="a.icon" />
+                </v-avatar>
+                <div class="text-subtitle-2 font-weight-bold">{{ a.title }}</div>
               </div>
-              <div class="text-body-2 text-medium-emphasis mt-3">
-                {{ a.desc }}
-              </div>
+              <div class="text-body-2 text-medium-emphasis">{{ a.desc }}</div>
             </v-card>
           </v-col>
         </v-row>
       </v-container>
     </section>
 
-    <!-- Pricing -->
+    <!-- ──────────────────────────── Pricing ──────────────────────────────── -->
     <section class="sb-section sbq-band">
       <v-container class="main-container">
-        <div class="text-h2 font-weight-bold text-center">
-          Pricing that fits your organization.
-        </div>
-        <div class="text-body-2 text-medium-emphasis text-center mt-2">
-          Choose a plan based on your size, assessment needs, and reporting
-          requirements.
-        </div>
+        <div class="section-label text-center">Pricing</div>
+        <h2 class="section-heading text-center">Pricing that fits your organization.</h2>
+        <p class="section-sub text-center">
+          Choose a plan based on your size, assessment needs, and reporting requirements.
+        </p>
 
         <v-row class="mt-10" justify="center">
-          <v-col cols="12" md="4" v-for="plan in pricing" :key="plan.name">
+          <v-col
+            v-for="plan in pricing"
+            :key="plan.name"
+            cols="12"
+            md="4"
+          >
             <v-card
               rounded="xl"
-              :variant="plan.featured ? 'flat' : 'outlined'"
-              :class="plan.featured ? 'sbq-pricing-featured' : 'bg-white'"
+              variant="outlined"
               class="pa-6 h-100"
+              :class="{ 'sbq-pricing-featured': plan.featured }"
             >
-              <div class="d-flex align-center justify-space-between">
-                <div class="text-subtitle-2 font-weight-bold">
-                  {{ plan.name }}
-                </div>
+              <div class="d-flex align-center justify-space-between mb-4">
+                <div class="text-subtitle-2 font-weight-bold">{{ plan.name }}</div>
                 <v-chip
                   v-if="plan.badge"
                   size="small"
                   color="primary"
                   variant="tonal"
+                  rounded="lg"
                   class="font-weight-bold"
                 >
                   {{ plan.badge }}
                 </v-chip>
               </div>
 
-              <div class="mt-4">
-                <div class="d-flex align-baseline ga-2">
-                  <div class="text-h4 font-weight-bold">{{ plan.price }}</div>
-                  <div
-                    v-if="plan.period"
-                    class="text-body-2 text-medium-emphasis"
-                  >
-                    /{{ plan.period }}
-                  </div>
-                </div>
-                <div class="text-body-2 text-medium-emphasis mt-2">
-                  {{ plan.subtitle }}
-                </div>
+              <div class="d-flex align-baseline ga-1 mb-1">
+                <div class="text-h4 font-weight-black">{{ plan.price }}</div>
+                <div v-if="plan.period" class="text-body-2 text-medium-emphasis">/{{ plan.period }}</div>
               </div>
+              <div class="text-body-2 text-medium-emphasis mb-5">{{ plan.subtitle }}</div>
 
-              <v-divider class="my-5" />
+              <v-divider class="mb-5" />
 
-              <div class="d-flex flex-column ga-3">
+              <div class="d-flex flex-column ga-3 mb-8">
                 <div
                   v-for="(f, i) in plan.features"
                   :key="i"
                   class="d-flex align-center ga-2 text-body-2"
                 >
-                  <v-icon size="18" icon="lucide:check" color="primary" />
+                  <v-icon size="16" icon="lucide:check-circle-2" color="primary" class="flex-shrink-0" />
                   <span class="text-medium-emphasis">{{ f }}</span>
                 </div>
               </div>
 
-              <div class="mt-8">
-                <v-btn
-                  block
-                  rounded="lg"
-                  class="text-none"
-                  :color="plan.featured ? 'primary' : undefined"
-                  :variant="plan.featured ? 'flat' : 'outlined'"
-                >
-                  {{ plan.cta }}
-                </v-btn>
-              </div>
+              <v-btn
+                block
+                rounded="lg"
+                :color="plan.featured ? 'primary' : undefined"
+                :variant="plan.featured ? 'flat' : 'outlined'"
+              >
+                {{ plan.cta }}
+              </v-btn>
             </v-card>
           </v-col>
         </v-row>
       </v-container>
     </section>
 
-    <!-- FAQ -->
-    <section class="sb-section faq-section">
+    <!-- ──────────────────────────── FAQ ──────────────────────────────── -->
+    <section class="sb-section">
       <v-container class="main-container">
-        <div class="text-h2 font-weight-bold text-center">
-          Frequently asked questions
-        </div>
-        <div class="text-body-2 text-medium-emphasis text-center mt-2">
+        <div class="section-label text-center">FAQ</div>
+        <h2 class="section-heading text-center">Frequently asked questions.</h2>
+        <p class="section-sub text-center">
           Quick answers about configuration, scoring, exports, and more.
-        </div>
+        </p>
 
-        <v-row justify="center" class="mt-10" dense>
+        <v-row justify="center" class="mt-10">
           <v-col cols="12" md="8">
             <v-expansion-panels flat variant="accordion" class="faq-panels">
               <v-expansion-panel v-for="(q, i) in faqs" :key="i">
-                <v-expansion-panel-title
-                  class="text-subtitle-2 font-weight-semibold"
-                >
+                <v-expansion-panel-title class="text-subtitle-2 font-weight-semibold">
                   {{ q.q }}
                 </v-expansion-panel-title>
-                <v-expansion-panel-text
-                  class="text-body-2 text-medium-emphasis"
-                >
+                <v-expansion-panel-text class="text-body-2 text-medium-emphasis">
                   {{ q.a }}
                 </v-expansion-panel-text>
               </v-expansion-panel>
@@ -348,33 +349,35 @@
       </v-container>
     </section>
 
-    <!-- Bottom CTA -->
+    <!-- ──────────────────────────── Bottom CTA ──────────────────────────────── -->
     <section class="sb-section">
       <v-container class="main-container">
-        <v-card rounded="xl" class="sbq-cta text-center pa-8 pa-md-12">
-          <div class="text-h3 text-md-h5 font-weight-bold text-white">
-            Ready to run assessments with confidence?
-          </div>
-          <v-row>
-            <v-col cols="12" md="6" class="mx-auto">
-              <div class="text-body-2 text-white mt-3" style="opacity: 0.85">
-                From first response to final report — collect, score, and
-                analyze with reliable workflows your team can trust.
-              </div>
-            </v-col>
-          </v-row>
-          <div class="d-flex flex-wrap justify-md-center ga-3 mt-16">
-            <v-btn color="primary" variant="flat" rounded="lg" size="large">
-              Request a Demo
-            </v-btn>
-            <v-btn
+        <v-card rounded="xl" class="sbq-cta pa-8 pa-md-14 text-center">
+          <div class="sbq-cta-inner">
+            <v-chip
               variant="outlined"
+              size="small"
               rounded="lg"
-              size="large"
-              class="sbq-cta-outline"
+              class="mb-5 sbq-cta-chip font-weight-medium"
             >
-              View Sample Report
-            </v-btn>
+              <v-icon icon="lucide:rocket" size="14" class="me-1" />
+              Get Started Today
+            </v-chip>
+            <h2 class="text-h4 font-weight-black text-white mb-3">
+              Ready to run assessments with confidence?
+            </h2>
+            <p class="text-body-1 sbq-cta-sub mx-auto">
+              From first response to final report — collect, score, and analyze
+              with reliable workflows your team can trust.
+            </p>
+            <div class="d-flex flex-wrap justify-center ga-3 mt-8">
+              <v-btn color="primary" variant="flat" rounded="lg" size="large">
+                Request a Demo
+              </v-btn>
+              <v-btn variant="outlined" rounded="lg" size="large" class="sbq-cta-outline">
+                View Sample Report
+              </v-btn>
+            </div>
           </div>
         </v-card>
       </v-container>
@@ -383,32 +386,39 @@
 </template>
 
 <script setup lang="ts">
-const navItems = ["Forms", "Features", "Pricing", "FAQ"];
+const stats = [
+  { value: "10,000+", label: "Assessments run" },
+  { value: "500+", label: "Organizations" },
+  { value: "98%", label: "Satisfaction rate" },
+  { value: "< 5 min", label: "Avg. setup time" },
+];
 
 const heroBullets = [
   {
     icon: "lucide:line-chart",
     title: "Student scores",
     subtitle: "Track results over time",
+    stat: "+12%",
   },
   {
     icon: "lucide:layers",
     title: "Custom reports",
     subtitle: "Download PDF or CSV",
+    stat: "PDF",
   },
   {
     icon: "lucide:badge-check",
     title: "Real-time analytics",
     subtitle: "Insights while collecting",
+    stat: "Live",
   },
   {
     icon: "lucide:workflow",
-    title: "Dashboard-level tracking",
+    title: "Dashboard tracking",
     subtitle: "From setup to outcomes",
+    stat: "360°",
   },
 ];
-
-const brands = ["Stanford", "MIT", "Harvard", "Yale", "Princeton"];
 
 const insightCards = [
   {
@@ -429,7 +439,7 @@ const insightCards = [
   {
     icon: "lucide:shield-check",
     title: "Live response controls",
-    desc: "Pause, restart, and monitor live assessment sessions with complete control and visibility.",
+    desc: "Pause, restart, and monitor live sessions with complete control and visibility.",
   },
 ];
 
@@ -437,8 +447,9 @@ const platformBullets = [
   "Choose from a growing form library",
   "Use variable format options",
   "Customize and name scoring bands",
-  "Handle both numeric scoring and qualitative data",
+  "Handle numeric scoring and qualitative data",
   "Single import and export of data",
+  "Role-based access and permissions",
 ];
 
 const steps = [
@@ -574,12 +585,52 @@ const faqs = [
 </script>
 
 <style scoped lang="scss">
-/* Keep CSS minimal; rely on Vuetify classes for everything else */
+/* ── Sections ── */
+.sb-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
 
+.sbq-band {
+  background: #f6f7f9;
+}
+
+/* ── Section typography helpers ── */
+.section-label {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(var(--v-theme-primary));
+  margin-bottom: 12px;
+
+  &.text-center {
+    display: block;
+  }
+}
+
+.section-heading {
+  font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.section-sub {
+  font-size: 0.9375rem;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Hero ── */
 .sbq-hero {
   margin-top: -72px;
   padding-top: 164px;
-  padding-bottom: 72x;
+  padding-bottom: 80px;
   position: relative;
   overflow: hidden;
 
@@ -588,21 +639,9 @@ const faqs = [
     position: absolute;
     inset: -2px;
     background:
-      radial-gradient(
-        980px 560px at 14% 20%,
-        rgba(var(--v-theme-primary), 0.18),
-        transparent 56%
-      ),
-      radial-gradient(
-        760px 520px at 84% 18%,
-        rgba(var(--v-theme-primary), 0.1),
-        transparent 62%
-      ),
-      linear-gradient(
-        180deg,
-        rgba(var(--v-theme-surface), 0.72),
-        rgba(var(--v-theme-surface), 1)
-      );
+      radial-gradient(980px 560px at 14% 20%, rgba(var(--v-theme-primary), 0.14), transparent 56%),
+      radial-gradient(760px 520px at 84% 18%, rgba(var(--v-theme-primary), 0.08), transparent 62%),
+      linear-gradient(180deg, rgba(var(--v-theme-surface), 0.72), rgba(var(--v-theme-surface), 1));
     pointer-events: none;
   }
 
@@ -610,9 +649,9 @@ const faqs = [
     content: "";
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px);
-    background-size: 18px 18px;
-    opacity: 0.1;
+    background-image: radial-gradient(rgba(0, 0, 0, 0.07) 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.08;
     pointer-events: none;
     mix-blend-mode: overlay;
   }
@@ -624,80 +663,110 @@ const faqs = [
 }
 
 .sbq-hero-title {
-  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 4.5vw, 3rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
 }
 
-.sbq-hero-accent {
-  color: rgb(var(--v-theme-primary));
+.sbq-hero-sub {
+  max-width: 480px;
+  line-height: 1.7;
 }
 
 .sbq-hero-card {
-  background: #fff;
+  background: rgba(var(--v-theme-surface), 0.95);
 }
 
-.sbq-logo {
-  background: rgba(var(--v-theme-primary), 0.12);
+/* ── Steps ── */
+.sbq-step-num {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: rgba(var(--v-theme-primary), 0.2);
+  line-height: 1;
+}
+
+/* ── Platform checklist ── */
+.platform-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Pricing ── */
+.sbq-pricing-featured {
+  border-color: rgba(var(--v-theme-primary), 0.4) !important;
+  box-shadow: 0 8px 32px rgba(var(--v-theme-primary), 0.1);
+}
+
+/* ── FAQ ── */
+.faq-panels {
+  .v-expansion-panel {
+    background-color: #f9fafb;
+    border: 1px solid rgba(var(--v-theme-on-surface), 0.1);
+    margin-bottom: 8px;
+    border-radius: 16px !important;
+  }
+
+  .v-expansion-panel-title--active {
+    border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  }
+}
+
+/* ── Stats bar ── */
+.sbq-stats-bar {
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+  background: rgba(var(--v-theme-primary), 0.03);
+}
+
+.sbq-stat-value {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
   color: rgb(var(--v-theme-primary));
 }
 
-.sbq-icon {
-  background: rgba(var(--v-theme-primary), 0.12);
-  border-radius: 8px !important;
-}
-
-.sbq-bullet {
-  background: rgba(var(--v-theme-primary), 0.1);
-}
-
-.sbq-step-icon {
-  background: rgba(var(--v-theme-primary), 0.12);
-}
-
-.sbq-band {
-  background: #f6f7f9;
-}
-
-.sbq-brand {
-  opacity: 0.55;
-  font-weight: 600;
-}
-
-.sbq-pricing-featured {
-  border: 1px solid rgba(var(--v-theme-primary), 0.35) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
-}
-
+/* ── Bottom CTA ── */
 .sbq-cta {
-  background: #111827; /* deep neutral like screenshot CTA */
-  color: #fff;
+  background: #0f172a;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(600px 400px at 20% 50%, rgba(var(--v-theme-primary), 0.18), transparent 60%),
+      radial-gradient(400px 400px at 80% 20%, rgba(var(--v-theme-primary), 0.12), transparent 60%);
+    pointer-events: none;
+  }
+}
+
+.sbq-cta-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.sbq-cta-chip {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.sbq-cta-sub {
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 480px;
+  line-height: 1.7;
 }
 
 .sbq-cta-outline {
-  border-color: rgba(255, 255, 255, 0.35) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
   color: #fff !important;
-}
-
-.faq-section {
-  background-color: #fff;
-  .faq-panels {
-    .v-expansion-panel {
-      background-color: #f9fafb;
-      border: 1px solid var(--color-border);
-      margin-bottom: 8px;
-      border-radius: 16px !important;
-    }
-    .v-expansion-panel-title--active {
-      border-bottom: 1px solid var(--color-border);
-    }
-    @media (max-width: 600px) {
-      .v-expansion-panel-title {
-        padding: 32px !important;
-      }
-
-      // .v-expansion-panel-text {
-      //   font-size: 0.9rem;
-      // }
-    }
-  }
 }
 </style>
