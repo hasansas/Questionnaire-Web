@@ -343,6 +343,53 @@
               View Answers
             </v-btn>
           </v-card>
+
+          <!-- Report public URL -->
+          <v-card
+            v-if="result && publicReportUrl"
+            rounded="xl"
+            variant="outlined"
+            class="pa-5 mt-4"
+          >
+            <div class="d-flex align-center ga-3 mb-4">
+              <v-avatar size="44" rounded="lg" color="info" variant="tonal">
+                <v-icon icon="lucide:external-link" size="20" />
+              </v-avatar>
+              <div class="min-w-0">
+                <div class="text-subtitle-2 font-weight-bold">
+                  Report Public URL
+                </div>
+                <div class="text-body-2 text-medium-emphasis">
+                  Public result page for this attempt.
+                </div>
+              </div>
+            </div>
+
+            <div class="public-url-box mb-3">
+              {{ publicReportUrl }}
+            </div>
+
+            <div class="d-flex ga-2">
+              <v-btn
+                color="primary"
+                rounded="lg"
+                variant="tonal"
+                class="flex-grow-1"
+                prepend-icon="lucide:copy"
+                @click="copyPublicReportUrl"
+              >
+                Copy
+              </v-btn>
+              <v-btn
+                rounded="lg"
+                variant="outlined"
+                icon="lucide:external-link"
+                :href="publicReportUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            </div>
+          </v-card>
         </v-col>
 
         <!-- Right column: meta + user info -->
@@ -721,6 +768,7 @@ useHead({
 });
 
 const route = useRoute();
+const config = useRuntimeConfig();
 const api = useApiService();
 const auth = useAuthStore();
 
@@ -731,6 +779,25 @@ const errorMessage = ref("");
 const reportMeta = ref<ReportMeta | null>(null);
 const result = ref<ReportResult | null>(null);
 const answersDialog = ref(false);
+
+const publicReportUrl = computed(() => {
+  if (!reportMeta.value?.questionnaire_code || !id.value) return "";
+
+  const publicConfig = config.public as Record<string, unknown>;
+  const baseUrl = String(
+    publicConfig.WEB_BASE_URL ||
+      publicConfig.webBaseUrl ||
+      publicConfig.APP_PUBLIC_BASE_URL ||
+      publicConfig.i18nBaseUrl ||
+      "",
+  )
+    .trim()
+    .replace(/\/+$/, "");
+
+  if (!baseUrl) return "";
+
+  return `${baseUrl}/q/${reportMeta.value.questionnaire_code}/result/${id.value}`;
+});
 
 function formatDateTime(iso: string | null): string {
   if (!iso) return "—";
@@ -886,6 +953,12 @@ function handleExport(format: "pdf" | "json"): void {
   console.info(`[Report] export as ${format}`);
 }
 
+async function copyPublicReportUrl(): Promise<void> {
+  if (!publicReportUrl.value) return;
+
+  await navigator.clipboard.writeText(publicReportUrl.value);
+}
+
 async function load(): Promise<void> {
   uiState.value = "loading";
   errorMessage.value = "";
@@ -968,6 +1041,17 @@ onMounted(load);
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
+}
+
+.public-url-box {
+  padding: 10px 12px;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 10px;
+  background: rgba(var(--v-theme-surface-variant), 0.36);
+  color: rgb(var(--v-theme-on-surface));
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 /* only target the top label (first one in radar) */
