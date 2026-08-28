@@ -186,14 +186,38 @@
 
               <v-divider class="mb-5" />
 
-              <v-radio-group v-model="selectedValue" class="mt-1">
-                <v-radio
+              <v-radio-group v-model="selectedValue" class="mt-1" hide-details>
+                <v-card
                   v-for="opt in question.options"
                   :key="optionValue(opt)"
-                  :label="opt.label"
-                  :value="optionValue(opt)"
-                  class="py-2"
-                />
+                  rounded="lg"
+                  variant="outlined"
+                  class="pa-3 mb-3 option-row"
+                  :class="{
+                    'option-row--selected': selectedValue === optionValue(opt),
+                  }"
+                  @click="selectedValue = optionValue(opt)"
+                >
+                  <div class="d-flex align-center ga-3">
+                    <v-radio
+                      :value="optionValue(opt)"
+                      density="compact"
+                      hide-details
+                      class="flex-shrink-0"
+                    />
+
+                    <v-avatar
+                      v-if="opt.optionMode === 'image' && opt.imageUrl"
+                      size="40"
+                      rounded="lg"
+                      class="flex-shrink-0"
+                    >
+                      <v-img :src="opt.imageUrl" cover />
+                    </v-avatar>
+
+                    <span class="text-body-1">{{ opt.label }}</span>
+                  </div>
+                </v-card>
               </v-radio-group>
 
               <v-alert
@@ -931,5 +955,15 @@ function restart() {
   z-index: 10;
   backdrop-filter: blur(10px);
   background-color: rgba(var(--v-theme-surface), 0.9);
+}
+
+.option-row {
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.option-row--selected {
+  border-color: rgba(var(--v-theme-primary), 0.6) !important;
+  background-color: rgba(var(--v-theme-primary), 0.05);
 }
 </style>
