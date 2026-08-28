@@ -8,6 +8,8 @@ export interface AttemptQuestionOptionModel {
   id: string
   key?: string
   label: string
+  optionMode: string
+  imageUrl: string | null
   scoreValue: number
   sortOrder: number
 }
@@ -108,6 +110,8 @@ export function normalizeAttemptQuestionSession(
       id: String(option?.id || '').trim(),
       key: option?.key ? String(option.key).trim() : '',
       label: String(option?.label || '').trim(),
+      optionMode: String(option?.optionMode || 'text').trim(),
+      imageUrl: option?.imageUrl ? String(option.imageUrl).trim() : null,
       scoreValue: Number(option?.scoreValue || 0),
       sortOrder: Number(option?.sortOrder || 0),
     }))
