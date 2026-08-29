@@ -29,6 +29,7 @@ export interface AttemptQuestionModel {
   questionType: string
   questionMode: string
   imageUrl: string | null
+  questionImageUrl: string | null
   isRequired: boolean
   sortOrder: number
   prevQuestionId: string | null
@@ -64,6 +65,23 @@ export interface AttemptQuestionSessionModel {
   progress: AttemptQuestionProgressModel
 }
 
+function normalizeMediaUrl(value: any): string | null {
+  if (typeof value === 'string' && value.trim()) return value.trim()
+
+  const candidates = [
+    value?.publicUrl,
+    value?.url,
+    value?.media?.publicUrl,
+    value?.media?.url,
+  ]
+
+  const found = candidates.find(
+    (candidate) => typeof candidate === 'string' && candidate.trim(),
+  )
+
+  return found ? String(found).trim() : null
+}
+
 export function createDefaultAttemptQuestionSession(): AttemptQuestionSessionModel {
   return {
     attempt: createDefaultQuestionnaireAttempt(),
@@ -83,6 +101,7 @@ export function createDefaultAttemptQuestionSession(): AttemptQuestionSessionMod
       questionType: '',
       questionMode: 'text',
       imageUrl: null,
+      questionImageUrl: null,
       isRequired: false,
       sortOrder: 0,
       prevQuestionId: null,
@@ -111,7 +130,10 @@ export function normalizeAttemptQuestionSession(
       key: option?.key ? String(option.key).trim() : '',
       label: String(option?.label || '').trim(),
       optionMode: String(option?.optionMode || 'text').trim(),
-      imageUrl: option?.imageUrl ? String(option.imageUrl).trim() : null,
+      imageUrl:
+        normalizeMediaUrl(option?.imageUrl) ||
+        normalizeMediaUrl(option?.media) ||
+        null,
       scoreValue: Number(option?.scoreValue || 0),
       sortOrder: Number(option?.sortOrder || 0),
     }))
@@ -154,9 +176,14 @@ export function normalizeAttemptQuestionSession(
       description: String(payload?.question?.description || '').trim(),
       questionType: String(payload?.question?.questionType || '').trim(),
       questionMode: String(payload?.question?.questionMode || 'text').trim(),
-      imageUrl: payload?.question?.imageUrl
-        ? String(payload.question.imageUrl).trim()
-        : null,
+      imageUrl:
+        normalizeMediaUrl(payload?.question?.imageUrl) ||
+        normalizeMediaUrl(payload?.question?.media) ||
+        null,
+      questionImageUrl:
+        normalizeMediaUrl(payload?.question?.questionImageUrl) ||
+        normalizeMediaUrl(payload?.question?.questionImage) ||
+        null,
       isRequired: Boolean(payload?.question?.isRequired),
       sortOrder: Number(payload?.question?.sortOrder || 0),
       prevQuestionId: payload?.question?.prevQuestionId

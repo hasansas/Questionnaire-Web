@@ -160,24 +160,35 @@
           <!-- Main -->
           <v-col cols="12" md="8">
             <v-card rounded="lg" variant="outlined" class="pa-6">
-              <div class="d-flex align-start ga-3 mb-4">
+              <div class="d-flex align-start ga-3 mb-5">
                 <v-avatar size="40" color="primary" variant="tonal">
                   <v-icon icon="lucide:check-square" />
                 </v-avatar>
 
                 <div class="min-width-0">
-                  <div class="text-subtitle-1 font-weight-bold mb-1">
-                    {{
-                      question.text ||
-                      `Question ${progress.currentQuestionNumber}`
-                    }}
+                  <div
+                    v-if="question.text"
+                    class="question-text"
+                    v-html="question.text"
+                  />
+                  <div v-else class="question-text">
+                    Question {{ progress.currentQuestionNumber }}
                   </div>
                 </div>
               </div>
 
               <v-img
-                v-if="question.questionMode === 'image' && question.imageUrl"
-                :src="question.imageUrl"
+                v-if="questionImageUrl"
+                :src="questionImageUrl"
+                rounded="lg"
+                max-height="360"
+                class="mb-5"
+                cover
+              />
+
+              <v-img
+                v-if="questionContentImageUrl"
+                :src="questionContentImageUrl"
                 rounded="lg"
                 max-height="360"
                 class="mb-5"
@@ -199,23 +210,25 @@
                   @click="selectedValue = optionValue(opt)"
                 >
                   <div class="d-flex align-center ga-3">
-                    <v-radio
-                      :value="optionValue(opt)"
-                      density="compact"
-                      hide-details
-                      class="flex-shrink-0"
-                    />
-
-                    <v-avatar
-                      v-if="opt.optionMode === 'image' && opt.imageUrl"
-                      size="40"
-                      rounded="lg"
-                      class="flex-shrink-0"
-                    >
-                      <v-img :src="opt.imageUrl" cover />
+                    <v-avatar size="24">
+                      <v-radio
+                        :value="optionValue(opt)"
+                        density="compact"
+                        hide-details
+                        color="primary"
+                      />
                     </v-avatar>
-
-                    <span class="text-body-1">{{ opt.label }}</span>
+                    <v-avatar rounded="lg" size="64">
+                      <v-img
+                        v-if="isImageOption(opt)"
+                        :src="optionImageSrc(opt)"
+                        aspect-ratio="1"
+                        cover
+                      />
+                    </v-avatar>
+                    <span class="text-body-1 flex-grow-1">
+                      {{ opt.label }}
+                    </span>
                   </div>
                 </v-card>
               </v-radio-group>
@@ -529,6 +542,15 @@ const progressValue = computed(() => {
   return Math.round((answered / total) * 100);
 });
 
+const questionImageUrl = computed(() => {
+  return question.value?.questionImageUrl || null;
+});
+
+const questionContentImageUrl = computed(() => {
+  if (question.value?.questionMode !== "image") return null;
+  return question.value?.imageUrl || null;
+});
+
 const scoringLabel = computed(() => {
   switch (questionnaire.value?.scoringType) {
     case "multi_dimension":
@@ -596,6 +618,17 @@ function optionValue(opt: any) {
     return String(opt.key || "");
   }
   return String(opt.id || "");
+}
+
+function isImageOption(opt: any) {
+  return Boolean(optionImageSrc(opt));
+}
+
+function optionImageSrc(opt: any): string | undefined {
+  if (opt?.optionMode !== "image") return undefined;
+
+  const imageUrl = String(opt?.imageUrl || "").trim();
+  return imageUrl || undefined;
 }
 
 function formatKeyLabel(value: string) {
@@ -957,9 +990,26 @@ function restart() {
   background-color: rgba(var(--v-theme-surface), 0.9);
 }
 
+.question-text {
+  color: rgba(var(--v-theme-on-surface), 0.92);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.55;
+
+  :deep(p) {
+    margin: 0 0 8px;
+  }
+
+  :deep(p:last-child) {
+    margin-bottom: 0;
+  }
+}
+
 .option-row {
   cursor: pointer;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .option-row--selected {
