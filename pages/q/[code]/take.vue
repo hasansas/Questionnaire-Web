@@ -181,7 +181,6 @@
                 v-if="questionImageUrl"
                 :src="questionImageUrl"
                 rounded="lg"
-                max-height="360"
                 class="mb-5"
                 cover
               />
@@ -190,7 +189,6 @@
                 v-if="questionContentImageUrl"
                 :src="questionContentImageUrl"
                 rounded="lg"
-                max-height="360"
                 class="mb-5"
                 cover
               />
